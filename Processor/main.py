@@ -57,7 +57,7 @@ def test1():
 
 
 def test_alu():
-    n = 1
+    n = 32
     a = [Input(f"Input{i}") for i in range(n)]
     b = [Input(f"Input{i}") for i in range(n)]
     a_gen = randomNBitGen(n)
@@ -69,8 +69,8 @@ def test_alu():
     cin = Input()
     cin.output = 0
     selector = [Input(f"Input{i}") for i in range(2)]
-    bitsToGates("00", selector)
-    alu = ALUUnit(a[0], b[0], cin, selector)
+    bitsToGates("01", selector)
+    alu = ALU(a, b, cin, selector)
     alu.logic()
     print("".join(map(str, alu.get_output())))
 
