@@ -34,5 +34,7 @@ class Register:
             return self.outputs
         for flipflop in self.outputs:
             flipflop.logic(depend + [self])
-        output_bits = [bit.q() for bit in self.outputs]
-        return output_bits
+        return self.get_output()
+
+    def get_output(self):
+        return [bit.q() for bit in self.outputs]

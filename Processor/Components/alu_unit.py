@@ -8,7 +8,7 @@ from multiplexer.mux4x2 import Mux4x2
 class ALUUnit:
     DEBUGMODE = True
 
-    def __init__(self, a, b, cin, selectors, name="Arithmetic"):
+    def __init__(self, a, b, cin, selectors, name="ArithmeticUnit"):
         self.name = name
         self.a = a
         self.b = b
@@ -33,7 +33,10 @@ class ALUUnit:
                 print(self)
             return self.output
         self.output.logic(depend + [self])
-        return self.output.output.output, self.full_adder.cout
+        return self.output.output.output, self.full_adder.cout.output
+
+    def get_output(self):
+        return self.output.output.output, self.full_adder.cout.output
 
     def __repr__(self):
         return f"{self.name} : {self.output}"
