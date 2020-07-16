@@ -14,6 +14,7 @@ class ALUUnit:
         self.b = b
         self.cin = cin
         self.output = None
+        self.full_adder: FullAdder = None
         self.selectors = selectors
 
     def build(self):
@@ -24,6 +25,7 @@ class ALUUnit:
         mux1 = Mux4x2((full_adder, and1, or1, xor1), self.selectors, f"{self.name}_mux2x4")
 
         self.output = mux1
+        self.full_adder = full_adder
 
     def logic(self, depend=[]):
         if self in depend:
@@ -31,8 +33,7 @@ class ALUUnit:
                 print(self)
             return self.output
         self.output.logic(depend + [self])
-        return self.output.output
+        return self.output.output.output, self.full_adder.cout
 
     def __repr__(self):
         return f"{self.name} : {self.output}"
-
