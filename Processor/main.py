@@ -1,3 +1,4 @@
+from Components.alu_unit import ALUUnit
 from Components.register import Register
 from flipflop.d import D_FlipFlop
 from gate.and_gate import And
@@ -9,6 +10,7 @@ from latch.d import D_Latch
 from multiplexer.mux2x1 import Mux2x1
 from multiplexer.mux4x2 import Mux4x2
 from signals.signal import Signal
+from Components.alu import ALU
 
 from random import randint
 
@@ -54,5 +56,24 @@ def test1():
         print("Register Bits : " + "".join(map(str, outputs)))
 
 
+def test_alu():
+    n = 1
+    a = [Input(f"Input{i}") for i in range(n)]
+    b = [Input(f"Input{i}") for i in range(n)]
+    a_gen = randomNBitGen(n)
+    b_gen = randomNBitGen(n)
+    print(a_gen)
+    print(b_gen)
+    bitsToGates(a_gen, a)
+    bitsToGates(b_gen, b)
+    cin = Input()
+    cin.output = 0
+    selector = [Input(f"Input{i}") for i in range(2)]
+    bitsToGates("00", selector)
+    alu = ALUUnit(a[0], b[0], cin, selector)
+    alu.logic()
+    print("".join(map(str, alu.get_output())))
+
+
 turn_off_debug()
-test1()
+test_alu()
