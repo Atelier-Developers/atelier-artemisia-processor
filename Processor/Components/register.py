@@ -3,7 +3,6 @@ from latch.d import D_Latch
 
 
 class Register:
-
     DEBUGMODE = False
 
     def __init__(self, clock, inputs, size, name="Register"):
@@ -21,7 +20,6 @@ class Register:
         for i in range(self.size):
             self.outputs[i].set_input(self.inputs[i])
 
-
     def set_input(self, inputs):
         self.inputs = inputs
         self.build()
@@ -36,7 +34,5 @@ class Register:
             return self.outputs
         for flipflop in self.outputs:
             flipflop.logic(depend + [self])
-        # print(self.outputs)
         output_bits = [bit.q() for bit in self.outputs]
         return output_bits
-

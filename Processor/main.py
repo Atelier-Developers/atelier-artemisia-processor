@@ -1,4 +1,4 @@
-from Components.Register import Register
+from Components.register import Register
 from flipflop.d import D_FlipFlop
 from gate.and_gate import And
 from gate.input_gate import Input
@@ -42,7 +42,6 @@ def test1():
     clock = Signal()
     inputs = [Input(f"Input{i}") for i in range(32)]
     reg1 = Register(clock, inputs, 32)
-
     outputs = []
     for __ in range(10):
         generated_bits = randomNBitGen(32)
