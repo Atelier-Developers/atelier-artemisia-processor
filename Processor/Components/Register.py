@@ -1,9 +1,10 @@
 from flipflop.d import D_FlipFlop
+from latch.d import D_Latch
 
 
 class Register:
 
-    DEBUGMODE = True
+    DEBUGMODE = False
 
     def __init__(self, clock, inputs, size, name="Register"):
         self.inputs = inputs
@@ -16,7 +17,10 @@ class Register:
     def build(self):
         if self.inputs is None:
             return
-        self.outputs = [D_FlipFlop(self.clock, self.inputs[i], f"{self.name}_FlipFlop_{i}") for i in range(self.size)]
+        self.outputs = [D_FlipFlop(self.clock, None, f"{self.name}_Latch_{i}") for i in range(self.size)]
+        for i in range(self.size):
+            self.outputs[i].set_input(self.inputs[i])
+
 
     def set_input(self, inputs):
         self.inputs = inputs
@@ -32,6 +36,7 @@ class Register:
             return self.outputs
         for flipflop in self.outputs:
             flipflop.logic(depend + [self])
+        # print(self.outputs)
         output_bits = [bit.q() for bit in self.outputs]
         return output_bits
 
