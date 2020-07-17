@@ -1,5 +1,5 @@
 from Components.alu.left_shift import LeftSift
-from Components.alu_control_unit import ALUControlUnit
+from Components.control_units.alu_control_unit import ALUControlUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
 from Components.register_file.register import Register
