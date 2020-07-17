@@ -24,6 +24,10 @@ class Register:
         self.inputs = inputs
         self.build()
 
+    def set_clock(self, clock):
+        self.clock = clock
+        self.build()
+
     def __repr__(self):
         return f"{self.name} : {[bit.q() for bit in self.outputs]}"
 

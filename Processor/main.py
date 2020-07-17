@@ -76,4 +76,3 @@ def test_alu():
 
 
 turn_off_debug()
-test_alu()
