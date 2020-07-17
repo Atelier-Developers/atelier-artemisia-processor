@@ -35,10 +35,10 @@ class ALUControlUnit:
             (self.aluOp[1], not_aluop0, self.funct[5], not_funct4, not_funct3, not_funct2, self.funct[1], not_funct0)
         )
         and_cin_1 = And(
-            (self.aluOp[1], not_aluop0, self.funct[5], not_funct4, not_funct3, not_funct2, self.funct[1], not_funct0)
+            (self.aluOp[1], not_aluop0, self.funct[5], not_funct4, self.funct[3], not_funct2, self.funct[1], not_funct0)
         )
         and_cin_2 = And(
-            (not_aluop1, self.aluOp[0], self.funct[5], not_funct4, self.funct[3], not_funct2, self.funct[1], not_funct0)
+            (not_aluop1, self.aluOp[0])
         )
         cin = Or((and_cin_0, and_cin_1, and_cin_2))
         self.output = cin, select_0, select_1, select_2, select_3

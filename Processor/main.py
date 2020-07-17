@@ -1,4 +1,5 @@
 from Components.alu.left_shift import LeftSift
+from Components.alu_control_unit import ALUControlUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.register_file.register import Register
 from Components.register_file.register_file_unit import RegisterFileUnit
@@ -178,11 +179,25 @@ def forward_unit_test():
     print(fu.outputs)
 
 
+def test_alu_control():
+    alu_ops = [Input() for _ in range(2)]
+    funct = [Input() for _ in range(6)]
+
+    bitsToGates("01", alu_ops)
+    bitsToGates("000001", funct)
+    # set_random_value(6, funct, "funct")
+    reg_control = ALUControlUnit(alu_ops, funct)
+    reg_control.logic()
+    outputs = reg_control.get_output()
+    print("".join(map(str, outputs)))
+
+
 turn_off_debug()
+# test_alu_control()
 # test_right_shift()
 # test_left_shift()
 # test_sign_extend()
 # test_reg_file()
 # test1()
-test_alu()
+# test_alu()
 # forward_unit_test()
