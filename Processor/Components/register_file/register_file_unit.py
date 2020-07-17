@@ -1,4 +1,4 @@
-from Components.register import Register
+from Components.register_file.register import Register
 from decoder.decoder_mxn import Decoder_nxm
 from gate.and_gate import And
 from gate.input_gate import Input
@@ -27,6 +27,7 @@ class RegisterFileUnit:
         return f"{self.name} : {self.get_outputs()}"
 
     def build(self):
+        #TODO buffer enable
         read_number1, read_number2, write_number1, write_value1 = self.inputs
         self.write_num_reg = Register(self.clock, write_number1, int(log(self.n, 2)))
         self.dec1 = Decoder_nxm(self.write_num_reg.outputs, int(log(self.n, 2)))
