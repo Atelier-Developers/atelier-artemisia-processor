@@ -26,20 +26,20 @@ class RegisterFileUnit:
 
     def build(self):
         read_number1, read_number2, write_number1, write_value1 = self.inputs
-        self.registers = [Register(None, write_value1, self.reg_width) for i in range(self.n)]
+        dec1 = Decoder_nxm(write_number1, int(log(self.n, 2)))
+        self.registers = [Register(And((self.clock, self.write_reg, dec1.outputs[i])), write_value1, self.reg_width) for
+                          i in range(self.n)]
+        # print(len(self.registers[0].outputs))
         muxes_read1 = [
-            Mux_mxn([self.registers[j].get_output()[i] for j in range(self.n)], read_number1,
+            Mux_mxn([self.registers[j].outputs[i] for j in range(self.n)], read_number1, int(log(self.n, 2)),
                     f"{self.name}_mux_{i}_read1")
             for i in range(self.reg_width)]
         muxes_read2 = [
-            Mux_mxn([self.registers[j].get_output()[i] for j in range(self.n)], read_number2,
+            Mux_mxn([self.registers[j].outputs[i] for j in range(self.n)], read_number2, int(log(self.n, 2)),
                     f"{self.name}_mux_{i}_read2")
             for i in range(self.reg_width)]
         self.read1 = muxes_read1
         self.read2 = muxes_read2
-        dec1 = Decoder_nxm(write_number1, int(log(self.n, 2)))
-        for i in range(self.n):
-            self.registers[i].set_clock(And((self.clock, self.write_reg, dec1.outputs[i]), f"{self.name}_and_dec_{i}"))
         self.outputs = (self.read1, self.read2)
 
     def logic(self, depend=[]):

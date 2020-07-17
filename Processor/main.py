@@ -1,5 +1,6 @@
 from Components.alu_unit import ALUUnit
 from Components.register import Register
+from Components.register_file.register_file_unit import RegisterFileUnit
 from flipflop.d import D_FlipFlop
 from gate.and_gate import And
 from gate.input_gate import Input
@@ -11,6 +12,7 @@ from multiplexer.mux2x1 import Mux2x1
 from multiplexer.mux4x2 import Mux4x2
 from signals.signal import Signal
 from Components.alu import ALU
+from math import log
 
 from random import randint
 
@@ -75,4 +77,47 @@ def test_alu():
     print("".join(map(str, alu.get_output())))
 
 
+def test_reg_file():
+    n = 8
+    reg_width = 32
+    size = int(log(n, 2))
+    read_num1 = [Input(f"Input{i}") for i in range(size)]
+    read_num2 = [Input(f"Input{i}") for i in range(size)]
+    write_num1 = [Input(f"Input{i}") for i in range(size)]
+    write_val = [Input(f"Input{i}") for i in range(reg_width)]
+    enable = Input()
+    clock = Signal()
+
+    reg_file = RegisterFileUnit((read_num1, read_num2, write_num1, write_val), enable, clock, n, reg_width)
+
+    for i in range(10):
+        print("clock :" + str(clock.output.output))
+        if i % 4 == 1:
+            enable.output = 1
+        else:
+            enable.output = 0
+        print("Enable Signal: " + str(enable.output))
+        read_gen1 = randomNBitGen(size)
+        read_gen2 = randomNBitGen(size)
+        write_gen1 = randomNBitGen(size)
+        write_gen2 = randomNBitGen(reg_width)
+        print("Read num 1:" + read_gen1)
+        print("Read num 2:" + read_gen2)
+        print("Write num:" + write_gen1)
+        print("Write val:" + write_gen2)
+        bitsToGates(read_gen1, read_num1)
+        bitsToGates(read_gen2, read_num2)
+        bitsToGates(write_gen1, write_num1)
+        bitsToGates(write_gen2, write_val)
+        reg_file.logic()
+        outputs = reg_file.get_outputs()
+        # print(outputs[0])
+        print("".join(map(str, [outputs[0][i].output for i in range(reg_width)])))
+        print("".join(map(str, [outputs[1][i].output for i in range(reg_width)])))
+        clock.pulse()
+
+        # Check Write as well
+
+
 turn_off_debug()
+test_reg_file()
