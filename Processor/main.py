@@ -78,7 +78,7 @@ def test_alu():
 
 
 def test_reg_file():
-    n = 8
+    n = 4
     reg_width = 32
     size = int(log(n, 2))
     read_num1 = [Input(f"Input{i}") for i in range(size)]
