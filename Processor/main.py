@@ -1,4 +1,5 @@
 from Components.alu.left_shift import LeftSift
+from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.register_file.register import Register
 from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.alu.right_shift import RightSift
@@ -151,6 +152,32 @@ def test_sign_extend():
     print("".join(map(str, [sign_extend.get_output()[i] for i in range(32)])))
 
 
+def forward_unit_test():
+    rd_ex_mem = [Input() for _ in range(5)]
+    rd_mem_wb = [Input() for _ in range(5)]
+    rw_ex_mem = Input()
+    rw_mem_wb = Input()
+    rs_id_ex = [Input() for _ in range(5)]
+    rt_id_ex = [Input() for _ in range(5)]
+
+    bitsToGates("11101", rd_ex_mem)
+    bitsToGates("10001", rd_mem_wb)
+    bitsToGates("11101", rs_id_ex)
+    bitsToGates("11001", rt_id_ex)
+
+    rw_ex_mem.output = 1
+    rw_mem_wb.output = 1
+
+    fu = ForwardingUnit(rd_ex_mem, rd_mem_wb, rw_ex_mem, rw_mem_wb, rs_id_ex, rt_id_ex)
+
+    fu.outputs[0][0].logic()
+    fu.outputs[0][1].logic()
+    fu.outputs[1][0].logic()
+    fu.outputs[1][1].logic()
+
+    print(fu.outputs)
+
+
 turn_off_debug()
 # test_right_shift()
 # test_left_shift()
@@ -158,3 +185,4 @@ turn_off_debug()
 # test_reg_file()
 # test1()
 test_alu()
+# forward_unit_test()
