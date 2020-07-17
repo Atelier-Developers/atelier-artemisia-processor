@@ -1,4 +1,4 @@
-from Components.register import Register
+from Components.register_file.register import Register
 from decoder.decoder_mxn import Decoder_nxm
 from gate.and_gate import And
 from gate.input_gate import Input

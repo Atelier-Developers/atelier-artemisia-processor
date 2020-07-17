@@ -1,6 +1,6 @@
-from Components.alu_unit import ALUUnit
-from Components.left_shift import LeftSift
-from Components.right_shift import RightSift
+from Components.alu.alu_unit import ALUUnit
+from Components.alu.left_shift import LeftSift
+from Components.alu.right_shift import RightSift
 from multiplexer.mux_mxn import Mux_mxn
 
 

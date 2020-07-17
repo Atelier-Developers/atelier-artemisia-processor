@@ -1,9 +1,8 @@
-from Components.alu_unit import ALUUnit
-from Components.left_shift import LeftSift
-from Components.register import Register
+from Components.alu.left_shift import LeftSift
+from Components.register_file.register import Register
 from Components.register_file.register_file_unit import RegisterFileUnit
-from Components.right_shift import RightSift
-from Components.sign_extend_16to32 import SignExtend16To32
+from Components.alu.right_shift import RightSift
+from Components.sign_extend.sign_extend_16to32 import SignExtend16To32
 from flipflop.d import D_FlipFlop
 from gate.and_gate import And
 from gate.input_gate import Input
@@ -14,7 +13,7 @@ from latch.d import D_Latch
 from multiplexer.mux2x1 import Mux2x1
 from multiplexer.mux4x2 import Mux4x2
 from signals.signal import Signal
-from Components.alu import ALU
+from Components.alu.alu import ALU
 from math import log
 
 from random import randint
