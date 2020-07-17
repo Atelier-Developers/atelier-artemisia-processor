@@ -17,7 +17,9 @@ class RegisterFileUnit:
         self.read2: list = None
         self.registers: list = None
         self.outputs: tuple = None
+        self.dec1 = None
         self.n = n  # Number of Registers
+        self.write_num_reg = None
         self.reg_width = reg_width
         self.build()
 
@@ -26,10 +28,10 @@ class RegisterFileUnit:
 
     def build(self):
         read_number1, read_number2, write_number1, write_value1 = self.inputs
-        dec1 = Decoder_nxm(write_number1, int(log(self.n, 2)))
-        self.registers = [Register(And((self.clock, self.write_reg, dec1.outputs[i])), write_value1, self.reg_width) for
+        self.write_num_reg = Register(self.clock, write_number1, int(log(self.n, 2)))
+        self.dec1 = Decoder_nxm(self.write_num_reg.outputs, int(log(self.n, 2)))
+        self.registers = [Register(And((self.clock, self.write_reg, self.dec1.outputs[i])), write_value1, self.reg_width) for
                           i in range(self.n)]
-        # print(len(self.registers[0].outputs))
         muxes_read1 = [
             Mux_mxn([self.registers[j].outputs[i] for j in range(self.n)], read_number1, int(log(self.n, 2)),
                     f"{self.name}_mux_{i}_read1")
@@ -45,6 +47,8 @@ class RegisterFileUnit:
     def logic(self, depend=[]):
         if self in depend:
             return self.outputs
+        for i in range(self.n):     # WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY SHOULD I RUN THE LOGIC HERE?
+            self.dec1.outputs[i].logic()
         for i in range(self.n):
             self.registers[i].logic(depend + [self])
         for i in range(self.reg_width):

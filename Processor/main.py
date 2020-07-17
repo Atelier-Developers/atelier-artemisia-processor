@@ -120,3 +120,4 @@ def set_random_value(n, input, name):
 
 turn_off_debug()
 test_reg_file()
+# test1()
