@@ -1,6 +1,7 @@
 from Components.alu.alu_unit import ALUUnit
 from Components.alu.left_shift import LeftSift
 from Components.alu.right_shift import RightSift
+from gate.xor_gate import Xor
 from multiplexer.mux_mxn import Mux_mxn
 
 
@@ -22,9 +23,11 @@ class ALU:
         self.build()
 
     def build(self):
-        self.alu_unit_output = [ALUUnit(self.a[i], self.b[i], None, self.selectors[2:4], f"{self.name}_AluUnit_{i}") for
-                                i in
-                                range(self.n)]
+
+        self.alu_unit_output = [
+            ALUUnit(self.a[i], Xor((self.b[i], self.cin)), None, self.selectors[2:4], f"{self.name}_AluUnit_{i}") for
+            i in
+            range(self.n)]
         self.alu_unit_output[self.n - 1].set_cin(self.cin)
         for i in range(self.n - 2, -1, -1):
             self.alu_unit_output[i].set_cin(self.alu_unit_output[i + 1].cout)
