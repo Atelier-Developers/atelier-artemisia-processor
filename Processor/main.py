@@ -3,6 +3,7 @@ from Components.left_shift import LeftSift
 from Components.register import Register
 from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.right_shift import RightSift
+from Components.sign_extend_16to32 import SignExtend16To32
 from flipflop.d import D_FlipFlop
 from gate.and_gate import And
 from gate.input_gate import Input
@@ -139,8 +140,17 @@ def set_random_value(n, input, name):
     bitsToGates(read_gen, input)
 
 
+def test_sign_extend():
+    a = [Input(f"Input{i}") for i in range(16)]
+    set_random_value(16, a, "a")
+    sign_extend = SignExtend16To32(a)
+    sign_extend.logic()
+    print("".join(map(str, [sign_extend.get_output()[i] for i in range(32)])))
+
+
 turn_off_debug()
 # test_right_shift()
-test_left_shift()
+# test_left_shift()
+test_sign_extend()
 # test_reg_file()
 # test1()
