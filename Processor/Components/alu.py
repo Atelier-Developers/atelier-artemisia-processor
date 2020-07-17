@@ -1,32 +1,43 @@
 from Components.alu_unit import ALUUnit
+from Components.left_shift import LeftSift
+from Components.right_shift import RightSift
+from multiplexer.mux_mxn import Mux_mxn
 
 
 class ALU:
     DEBUGMODE = True
 
-    def __init__(self, a, b, cin, selectors, name="Arithmetic"):
+    def __init__(self, a, b, cin, selectors, shamt, name="Arithmetic"):
         self.a = a
         self.b = b
         self.cin = cin
         self.selectors = selectors
+        self.shamt = shamt
         self.name = name
-        self.outputs = None
+        self.output = None
         self.n = 32
         self.build()
 
     def build(self):
-        self.outputs = [ALUUnit(self.a[i], self.b[i], None, self.selectors, f"{self.name}_AluUnit_{i}") for i in
-                        range(self.n)]
-        self.outputs[self.n - 1].set_cin(self.cin)
+        self.alu_unit_output = [ALUUnit(self.a[i], self.b[i], None, self.selectors[2:4], f"{self.name}_AluUnit_{i}") for
+                                i in
+                                range(self.n)]
+        self.alu_unit_output[self.n - 1].set_cin(self.cin)
         for i in range(self.n - 2, -1, -1):
-            self.outputs[i].set_cin(self.outputs[i + 1].cout)
+            self.alu_unit_output[i].set_cin(self.alu_unit_output[i + 1].cout)
+
+        shift_left = LeftSift(self.a, self.shamt, 32, f"{self.name}_left_shift")
+        shift_right = RightSift(self.a, self.shamt, 32, f"{self.name}_right_shift")
+        shift_mux = [Mux_mxn([shift_left.output[i], shift_right.output[i]], self.selectors[1:2], 1) for i in range(32)]
+        self.output = [Mux_mxn([self.alu_unit_output[i].output.output, shift_mux[i].output], self.selectors[1:2], 1) for
+                       i in range(32)]
 
     def logic(self, depend=[]):
         if self in depend:
-            return self.outputs
-        for unit in self.outputs:
-            unit.logic(depend + [self])
+            return self.output
+        for i in range(32):
+            self.output[i].logic(depend + [self])
         return self.get_output()
 
     def get_output(self):
-        return [unit.get_output()[0] for unit in self.outputs]
+        return [unit.get_output() for unit in self.output]
