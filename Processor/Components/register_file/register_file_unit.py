@@ -59,3 +59,5 @@ class RegisterFileUnit:
     def get_outputs(self):
         return [self.outputs[0][i].output for i in range(self.reg_width)], [self.outputs[1][i].output for i in
                                                                             range(self.reg_width)]
+
+

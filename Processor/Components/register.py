@@ -42,3 +42,6 @@ class Register:
 
     def get_output(self):
         return [bit.q() for bit in self.outputs]
+
+    def __getitem__(self, item):
+        return self.outputs[item]

@@ -118,6 +118,7 @@ def set_random_value(n, input, name):
     bitsToGates(read_gen, input)
 
 
+
 turn_off_debug()
 test_reg_file()
 # test1()
