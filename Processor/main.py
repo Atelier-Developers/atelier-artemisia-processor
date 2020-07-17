@@ -65,19 +65,23 @@ def test_alu():
     n = 32
     a = [Input(f"Input{i}") for i in range(n)]
     b = [Input(f"Input{i}") for i in range(n)]
+    shamt = [Input(f"Input{i}") for i in range(5)]
     a_gen = randomNBitGen(n)
     b_gen = randomNBitGen(n)
-    print(a_gen)
-    print(b_gen)
+    shamt_gen = randomNBitGen(5)
+    print("a_gen: " + a_gen)
+    print("b_gen: " + b_gen)
+    print("shamt_gen: " + shamt_gen)
     bitsToGates(a_gen, a)
     bitsToGates(b_gen, b)
+    bitsToGates(shamt_gen, shamt)
     cin = Input()
     cin.output = 0
-    selector = [Input(f"Input{i}") for i in range(2)]
-    bitsToGates("01", selector)
-    alu = ALU(a, b, cin, selector)
+    selector = [Input(f"Input{i}") for i in range(4)]
+    bitsToGates("0100", selector)
+    alu = ALU(a, b, cin, selector, shamt)
     alu.logic()
-    print("".join(map(str, alu.get_output())))
+    print("xxxxx: " + "".join(map(str, alu.get_output())))
 
 
 def test_reg_file():
@@ -151,6 +155,7 @@ def test_sign_extend():
 turn_off_debug()
 # test_right_shift()
 # test_left_shift()
-test_sign_extend()
+# test_sign_extend()
 # test_reg_file()
 # test1()
+test_alu()

@@ -11,9 +11,12 @@ class ALU:
         self.a = a
         self.b = b
         self.cin = cin
+        # Four bits are used to select an operation, bit[0] is for alu_unit/shifting,
+        # bit[1] is for shl/shr, and bit[2:4] are for the alu operation (Add, And, Or, Xor, respectively)
         self.selectors = selectors
         self.shamt = shamt
         self.name = name
+        self.alu_unit_output = None
         self.output = None
         self.n = 32
         self.build()
@@ -29,7 +32,7 @@ class ALU:
         shift_left = LeftSift(self.a, self.shamt, 32, f"{self.name}_left_shift")
         shift_right = RightSift(self.a, self.shamt, 32, f"{self.name}_right_shift")
         shift_mux = [Mux_mxn([shift_left.output[i], shift_right.output[i]], self.selectors[1:2], 1) for i in range(32)]
-        self.output = [Mux_mxn([self.alu_unit_output[i].output.output, shift_mux[i].output], self.selectors[1:2], 1) for
+        self.output = [Mux_mxn([self.alu_unit_output[i].output.output, shift_mux[i].output], self.selectors[0:1], 1) for
                        i in range(32)]
 
     def logic(self, depend=[]):
