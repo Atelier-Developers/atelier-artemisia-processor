@@ -30,7 +30,7 @@ class RegisterFileUnit:
         read_number1, read_number2, write_number1, write_value1 = self.inputs
         self.write_num_reg = Register(self.clock, write_number1, int(log(self.n, 2)))
         self.dec1 = Decoder_nxm(self.write_num_reg.outputs, int(log(self.n, 2)))
-        self.registers = [Register(And((self.clock, self.write_reg, self.dec1.outputs[i])), write_value1, self.reg_width) for
+        self.registers = [Register(And((self.clock, self.write_reg, self.dec1.outputs[i])), write_value1, self.reg_width) for  # DECODER ORDER HAS CHANGED, AND AND OR GATES HAVE BEEN MODIFIED
                           i in range(self.n)]
         muxes_read1 = [
             Mux_mxn([self.registers[j].outputs[i] for j in range(self.n)], read_number1, int(log(self.n, 2)),
@@ -47,8 +47,8 @@ class RegisterFileUnit:
     def logic(self, depend=[]):
         if self in depend:
             return self.outputs
-        for i in range(self.n):     # WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY SHOULD I RUN THE LOGIC HERE?
-            self.dec1.outputs[i].logic()
+        # for i in range(self.n):     # WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY SHOULD I RUN THE LOGIC HERE?
+        #     self.dec1.outputs[i].logic()
         for i in range(self.n):
             self.registers[i].logic(depend + [self])
         for i in range(self.reg_width):

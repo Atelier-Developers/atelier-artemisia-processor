@@ -36,8 +36,8 @@ class Register:
             if Register.DEBUGMODE:
                 print(self)
             return self.outputs
-        for flipflop in self.outputs:
-            flipflop.logic(depend + [self])
+        for flip_flop in self.outputs:
+            flip_flop.logic(depend + [self])
         return self.get_output()
 
     def get_output(self):
