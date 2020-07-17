@@ -1,6 +1,8 @@
 from Components.alu_unit import ALUUnit
+from Components.left_shift import LeftSift
 from Components.register import Register
 from Components.register_file.register_file_unit import RegisterFileUnit
+from Components.right_shift import RightSift
 from flipflop.d import D_FlipFlop
 from gate.and_gate import And
 from gate.input_gate import Input
@@ -108,8 +110,27 @@ def test_reg_file():
         print("".join(map(str, [outputs[0][i].output for i in range(reg_width)])))
         print("".join(map(str, [outputs[1][i].output for i in range(reg_width)])))
         clock.pulse()
-
     # Check Write as well
+
+
+def test_right_shift():
+    a = [Input(f"Input{i}") for i in range(32)]
+    b = [Input(f"Input{i}") for i in range(5)]
+    set_random_value(32, a, "a")
+    bitsToGates("00011", b)
+    right_shift = RightSift(a, b, 32)
+    right_shift.logic()
+    print("".join(map(str, [right_shift.get_output()[i] for i in range(32)])))
+
+
+def test_left_shift():
+    a = [Input(f"Input{i}") for i in range(32)]
+    b = [Input(f"Input{i}") for i in range(5)]
+    set_random_value(32, a, "a")
+    bitsToGates("00011", b)
+    left_shift = LeftSift(a, b, 32)
+    left_shift.logic()
+    print("".join(map(str, [left_shift.get_output()[i] for i in range(32)])))
 
 
 def set_random_value(n, input, name):
@@ -119,5 +140,7 @@ def set_random_value(n, input, name):
 
 
 turn_off_debug()
-test_reg_file()
+# test_right_shift()
+test_left_shift()
+# test_reg_file()
 # test1()
