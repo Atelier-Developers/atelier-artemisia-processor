@@ -47,7 +47,7 @@ class RegisterFileUnit:
             return self.outputs
         for i in range(self.n):
             self.registers[i].logic(depend + [self])
-        for i in range(self.n):
+        for i in range(self.reg_width):
             self.read1[i].logic(depend + [self])
             self.read2[i].logic(depend + [self])
         return self.get_outputs()
