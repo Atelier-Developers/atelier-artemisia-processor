@@ -1,5 +1,6 @@
 from Components.alu.left_shift import LeftSift
 from Components.control_units.alu_control_unit import ALUControlUnit
+from Components.control_units.control_unit import ControlUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
 from Components.register_file.register import Register
@@ -207,6 +208,16 @@ def hazard_test():
     print(hdu.get_output())
 
 
+def test_control_unit():
+    opcodes = [Input() for _ in range(6)]
+
+    bitsToGates("010000", opcodes)
+    control_unit = ControlUnit(opcodes)
+    control_unit.logic()
+    outputs = control_unit.get_output()
+    print("".join(map(str, outputs)))
+
+
 turn_off_debug()
 # test_alu_control()
 # turn_off_debug()
@@ -216,5 +227,6 @@ turn_off_debug()
 # test_reg_file()
 # test1()
 # test_alu()
-forward_unit_test()
+# forward_unit_test()
+test_control_unit()
 # hazard_test()

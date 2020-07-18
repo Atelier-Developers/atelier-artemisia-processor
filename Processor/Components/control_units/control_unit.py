@@ -8,6 +8,7 @@ class ControlUnit:
     def __init__(self, opcode, name="ControlUnit"):
         self.opcode = opcode
         self.output = None
+        self.name = name
         self.build()
 
     def build(self):
