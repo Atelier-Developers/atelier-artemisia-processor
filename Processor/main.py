@@ -1,4 +1,5 @@
 from Components.alu.left_shift import LeftSift
+from Components.branch_prediction.branch_predicton_unit import BranchPredictionUnit
 from Components.branch_prediction.two_bit_saturating_counter import TwoBitSaturatingCounter
 from Components.control_units.alu_control_unit import ALUControlUnit
 from Components.control_units.control_unit import ControlUnit
@@ -231,6 +232,18 @@ def test_saturating_counter():
         clock.pulse()
 
 
+def test_branch_predictor():
+    clock = Signal()
+    x = [Input()]
+    two_bit_saturating = BranchPredictionUnit(x[0], clock)
+    while True:
+        print("clock: " + str(clock.output.output))
+        set_random_value(1, x, "input")
+        two_bit_saturating.logic()
+        print(two_bit_saturating.get_output())
+        clock.pulse()
+
+
 turn_off_debug()
 # test_alu_control()
 # turn_off_debug()
@@ -242,5 +255,5 @@ turn_off_debug()
 # test_alu()
 # forward_unit_test()
 # test_control_unit()
-test_saturating_counter()
+test_branch_predictor()
 # hazard_test()
