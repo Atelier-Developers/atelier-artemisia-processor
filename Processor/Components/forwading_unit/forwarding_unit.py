@@ -59,3 +59,14 @@ class ForwardingUnit:
             (forward_a_01, forward_a_10),
             (forward_b_01, forward_b_10)
         )
+
+    def logic(self, depend=[]):
+        if self in depend:
+            return self.outputs
+        for i in range(2):
+            for j in range(2):
+                self.outputs[i][j].logic()
+
+    def get_output(self):
+        return (self.outputs[0][0].output, self.outputs[0][1].output), (
+            self.outputs[1][0].output, self.outputs[1][1].output)

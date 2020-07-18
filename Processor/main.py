@@ -162,22 +162,19 @@ def forward_unit_test():
     rs_id_ex = [Input() for _ in range(5)]
     rt_id_ex = [Input() for _ in range(5)]
 
-    bitsToGates("11101", rd_ex_mem)
-    bitsToGates("10001", rd_mem_wb)
-    bitsToGates("11101", rs_id_ex)
-    bitsToGates("11001", rt_id_ex)
+    bitsToGates("10001", rd_ex_mem)
+    bitsToGates("11101", rd_mem_wb)
+    bitsToGates("10001", rs_id_ex)
+    bitsToGates("11101", rt_id_ex)
 
     rw_ex_mem.output = 1
     rw_mem_wb.output = 1
 
     fu = ForwardingUnit(rd_ex_mem, rd_mem_wb, rw_ex_mem, rw_mem_wb, rs_id_ex, rt_id_ex)
 
-    fu.outputs[0][0].logic()
-    fu.outputs[0][1].logic()
-    fu.outputs[1][0].logic()
-    fu.outputs[1][1].logic()
+    fu.logic()
 
-    print(fu.outputs)
+    print(fu.get_output())
 
 
 def test_alu_control():
@@ -192,21 +189,22 @@ def test_alu_control():
     outputs = reg_control.get_output()
     print("".join(map(str, outputs)))
 
+
 def hazard_test():
-    rm_id_ex = Input()
+    memread_id_ex = Input()
     rt_id_ex = [Input() for _ in range(5)]
     rt_if_id = [Input() for _ in range(5)]
     rs_if_id = [Input() for _ in range(5)]
 
-    rm_id_ex.output = 0
+    memread_id_ex.output = 1
     bitsToGates("10001", rt_id_ex)
-    bitsToGates("11001", rt_if_id)
-    bitsToGates("10001", rs_if_id)
+    bitsToGates("10001", rt_if_id)
+    bitsToGates("11001", rs_if_id)
 
-    hdu = HazardDetectionUnit(rm_id_ex, rt_id_ex, rt_if_id, rs_if_id)
+    hdu = HazardDetectionUnit(memread_id_ex, rt_id_ex, rt_if_id, rs_if_id)
     hdu.output.logic()
 
-    print(hdu.output)
+    print(hdu.get_output())
 
 
 turn_off_debug()
@@ -218,5 +216,5 @@ turn_off_debug()
 # test_reg_file()
 # test1()
 # test_alu()
-# forward_unit_test()
+forward_unit_test()
 # hazard_test()
