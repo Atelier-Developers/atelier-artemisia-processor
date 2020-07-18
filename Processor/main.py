@@ -222,10 +222,10 @@ def test_control_unit():
 def test_saturating_counter():
     clock = Signal()
     x = [Input()]
-    bitsToGates("1", x)
     two_bit_saturating = TwoBitSaturatingCounter(x[0], clock)
-    for _ in range(10):
+    while True:
         print("clock: " + str(clock.output.output))
+        set_random_value(1, x, "input")
         two_bit_saturating.logic()
         print(two_bit_saturating.get_output())
         clock.pulse()

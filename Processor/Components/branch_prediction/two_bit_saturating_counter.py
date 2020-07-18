@@ -34,7 +34,7 @@ class TwoBitSaturatingCounter:
         d0.reset()
         self.d0 = d0
         self.d1 = d1
-        self.output = logic_d1
+        self.output = d1.output
 
     def logic(self, depend=[]):
         if self in depend:
