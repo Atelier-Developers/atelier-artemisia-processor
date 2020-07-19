@@ -27,20 +27,35 @@ class RegisterFileUnit:
         return f"{self.name} : {self.get_outputs()}"
 
     def build(self):
-        #TODO buffer enable
+        # TODO buffer enable
         read_number1, read_number2, write_number1, write_value1 = self.inputs
         self.write_num_reg = Register(self.clock, write_number1, int(log(self.n, 2)))
         self.dec1 = Decoder_nxm(self.write_num_reg.outputs, int(log(self.n, 2)))
-        self.registers = [Register(And((self.clock, self.write_reg, self.dec1.outputs[i])), write_value1, self.reg_width) for  # DECODER ORDER HAS CHANGED, AND AND OR GATES HAVE BEEN MODIFIED
-                          i in range(self.n)]
-        muxes_read1 = [
-            Mux_mxn([self.registers[j].outputs[i] for j in range(self.n)], read_number1, int(log(self.n, 2)),
-                    f"{self.name}_mux_{i}_read1")
-            for i in range(self.reg_width)]
-        muxes_read2 = [
-            Mux_mxn([self.registers[j].outputs[i] for j in range(self.n)], read_number2, int(log(self.n, 2)),
-                    f"{self.name}_mux_{i}_read2")
-            for i in range(self.reg_width)]
+        self.registers = []
+        app = self.registers.append
+        for i in range(self.n):
+            app(
+                Register(And((self.clock, self.write_reg, self.dec1.outputs[i])), write_value1, self.reg_width))
+        muxes_read1 = []
+        muxes_read1_app = muxes_read1.append
+        for i in range(self.reg_width):
+            inputs = []
+            inp_app = inputs.append
+            for j in range(self.n):
+                inp_app(self.registers[j].outputs[i])
+            muxes_read1_app(Mux_mxn(inputs, read_number1, int(log(self.n, 2)),
+                                    f"{self.name}_mux_{i}_read1"))
+
+        muxes_read2 = []
+        muxes_read2_app = muxes_read2.append
+        for i in range(self.reg_width):
+            inputs = []
+            inp_app = inputs.append
+            for j in range(self.n):
+                inp_app(self.registers[j].outputs[i])
+            muxes_read2_app(Mux_mxn(inputs, read_number2, int(log(self.n, 2)),
+                                    f"{self.name}_mux_{i}_read1"))
+
         self.read1 = muxes_read1
         self.read2 = muxes_read2
         self.outputs = (self.read1, self.read2)
@@ -48,10 +63,8 @@ class RegisterFileUnit:
     def logic(self, depend=[]):
         if self in depend:
             return self.outputs
-        # for i in range(self.n):     # WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY SHOULD I RUN THE LOGIC HERE?
-        #     self.dec1.outputs[i].logic()
-        for i in range(self.n):
-            self.registers[i].logic(depend + [self])
+        # for i in range(self.n):
+        #     self.registers[i].logic(depend + [self])
         for i in range(self.reg_width):
             self.read1[i].logic(depend + [self])
             self.read2[i].logic(depend + [self])
@@ -60,5 +73,3 @@ class RegisterFileUnit:
     def get_outputs(self):
         return [self.outputs[0][i].output for i in range(self.reg_width)], [self.outputs[1][i].output for i in
                                                                             range(self.reg_width)]
-
-

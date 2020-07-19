@@ -16,7 +16,10 @@ class Register:
     def build(self):
         if self.inputs is None:
             return
-        self.outputs = [D_FlipFlop(self.clock, None, f"{self.name}_Latch_{i}") for i in range(self.size)]
+        self.outputs = []
+        output_app = self.outputs.append
+        for i in range(self.size):
+            output_app(D_FlipFlop(self.clock, None, f"{self.name}_Latch_{i}"))
         for i in range(self.size):
             self.outputs[i].set_input(self.inputs[i])
 
@@ -36,8 +39,9 @@ class Register:
             if Register.DEBUGMODE:
                 print(self)
             return self.outputs
+        depend.append(self)
         for flip_flop in self.outputs:
-            flip_flop.logic(depend + [self])
+            flip_flop.logic(depend)
         return self.get_output()
 
     def get_output(self):
