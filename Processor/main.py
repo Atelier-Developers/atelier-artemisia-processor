@@ -248,7 +248,7 @@ def test_branch_predictor():
 # test_right_shift()
 # test_left_shift()
 # test_sign_extend()
-# test_reg_file()
+test_reg_file()
 # test1()
 # test_alu()
 # forward_unit_test()

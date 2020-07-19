@@ -48,10 +48,8 @@ class RegisterFileUnit:
     def logic(self, depend=[]):
         if self in depend:
             return self.outputs
-        # for i in range(self.n):     # WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY SHOULD I RUN THE LOGIC HERE?
-        #     self.dec1.outputs[i].logic()
-        for i in range(self.n):
-            self.registers[i].logic(depend + [self])
+        # for i in range(self.n):
+        #     self.registers[i].logic(depend + [self])
         for i in range(self.reg_width):
             self.read1[i].logic(depend + [self])
             self.read2[i].logic(depend + [self])
