@@ -22,7 +22,6 @@ from signals.signal import Signal
 from Components.alu.alu import ALU
 from math import log
 from random import randint
-import numba
 
 
 def turn_off_debug(every_thing=False):
@@ -89,7 +88,6 @@ def test_alu():
     print("xxxxx: " + "".join(map(str, alu.get_output())))
 
 
-# @numba.jit
 def test_reg_file():
     n = 32
     reg_width = 32
@@ -103,7 +101,7 @@ def test_reg_file():
 
     reg_file = RegisterFileUnit((read_num1, read_num2, write_num1, write_val), enable, clock, n, reg_width)
 
-    for i in range(2):
+    for i in range(100):
         # print("clock :" + str(clock.output.output))
         if i % 4 == 1:
             enable.output = 1
@@ -243,13 +241,6 @@ def test_branch_predictor():
         print(two_bit_saturating.get_output())
         clock.pulse()
 
-
-@numba.jit
-def computeSum(size: float) -> int:
-    sum = 0
-    for i in range(size):
-        sum += i
-        return sum
 
 
 
