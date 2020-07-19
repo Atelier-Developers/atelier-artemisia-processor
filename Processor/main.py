@@ -22,6 +22,7 @@ from signals.signal import Signal
 from Components.alu.alu import ALU
 from math import log
 from random import randint
+import numba
 
 
 def turn_off_debug(every_thing=False):
@@ -88,8 +89,9 @@ def test_alu():
     print("xxxxx: " + "".join(map(str, alu.get_output())))
 
 
+# @numba.jit
 def test_reg_file():
-    n = 4
+    n = 32
     reg_width = 32
     size = int(log(n, 2))
     read_num1 = [Input(f"Input{i}") for i in range(size)]
@@ -101,14 +103,13 @@ def test_reg_file():
 
     reg_file = RegisterFileUnit((read_num1, read_num2, write_num1, write_val), enable, clock, n, reg_width)
 
-    for i in range(10):
-        print(i)
-        print("clock :" + str(clock.output.output))
+    for i in range(2):
+        # print("clock :" + str(clock.output.output))
         if i % 4 == 1:
             enable.output = 1
         else:
             enable.output = 0
-        print("Enable Signal: " + str(enable.output))
+        # print("Enable Signal: " + str(enable.output))
         set_random_value(size, read_num1, "read_num1")
         set_random_value(size, read_num2, "read_num2")
         set_random_value(size, write_num1, "write_num")
@@ -116,8 +117,8 @@ def test_reg_file():
         reg_file.logic()
         outputs = reg_file.get_outputs()
         # print(outputs[0])
-        print("".join(map(str, [outputs[0][i].output for i in range(reg_width)])))
-        print("".join(map(str, [outputs[1][i].output for i in range(reg_width)])))
+        # print("".join(map(str, [outputs[0][i].output for i in range(reg_width)])))
+        # print("".join(map(str, [outputs[1][i].output for i in range(reg_width)])))
         clock.pulse()
     # Check Write as well
 
@@ -144,7 +145,7 @@ def test_left_shift():
 
 def set_random_value(n, input, name):
     read_gen = randomNBitGen(n)
-    print(f"{name}: {read_gen}")
+    # print(f"{name}: {read_gen}")
     bitsToGates(read_gen, input)
 
 
@@ -241,6 +242,16 @@ def test_branch_predictor():
         two_bit_saturating.logic()
         print(two_bit_saturating.get_output())
         clock.pulse()
+
+
+@numba.jit
+def computeSum(size: float) -> int:
+    sum = 0
+    for i in range(size):
+        sum += i
+        return sum
+
+
 
 # turn_off_debug()
 # test_alu_control()
