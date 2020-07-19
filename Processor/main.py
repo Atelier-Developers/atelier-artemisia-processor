@@ -21,7 +21,6 @@ from multiplexer.mux4x2 import Mux4x2
 from signals.signal import Signal
 from Components.alu.alu import ALU
 from math import log
-
 from random import randint
 
 
@@ -243,8 +242,7 @@ def test_branch_predictor():
         print(two_bit_saturating.get_output())
         clock.pulse()
 
-
-turn_off_debug()
+# turn_off_debug()
 # test_alu_control()
 # turn_off_debug()
 # test_right_shift()
@@ -255,5 +253,5 @@ turn_off_debug()
 # test_alu()
 # forward_unit_test()
 # test_control_unit()
-test_branch_predictor()
+# test_branch_predictor()
 # hazard_test()
