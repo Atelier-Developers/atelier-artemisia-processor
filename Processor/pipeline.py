@@ -3,12 +3,20 @@ from Components.control_units.control_unit import ControlUnit
 from Components.control_units.alu_control_unit import ALUControlUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
+from Components.pipline_register.ex_mem import EX_MEM
+from Components.pipline_register.id_ex import ID_EX
+from Components.pipline_register.if_id import IF_ID
+from Components.pipline_register.mem_wb import MEM_WB
+from Components.pipline_register.pc import PC
 from Components.register_file.register_file_unit import RegisterFileUnit
 from multiplexer.mux_mxn import Mux_mxn
 
 
-class MIPS:
+class Pipeline:
     def __init__(self):
+        # Get an instruciton list maybe?
+
+        # Components
         self.forwarding_unit: ForwardingUnit = None
         self.alu: ALU = None
         self.control_unit: ControlUnit = None
@@ -16,6 +24,8 @@ class MIPS:
         self.hazard_detection_unit: HazardDetectionUnit = None
         self.register_file_unit: RegisterFileUnit = None
 
+        # Pipeline registers
+        self.pc: PC = None
         self.if_id: IF_ID = None
         self.id_ex: ID_EX = None
         self.ex_mem: EX_MEM = None
@@ -25,54 +35,59 @@ class MIPS:
 
     def build(self):
         self.forwarding_unit = ForwardingUnit(
-            self.ex_mem.rd,
-            self.mem_wb.rd,
-            self.ex_mem.rw,
-            self.mem_wb.rw,
-            self.id_ex.rs,
-            self.id_ex.rt,
+            self.ex_mem.get_rd(),
+            self.mem_wb.get_rd(),
+            self.ex_mem.get_wb_control()[1],
+            self.mem_wb.get_wb_control()[1],
+            self.id_ex.get_rs(),
+            self.id_ex.get_rt(),
             "FowardingUnit"
         )
 
         self.hazard_detection_unit = HazardDetectionUnit(
-            self.id_ex.rm,
-            self.id_ex.rt,
-            self.if_id.rt,
-            self.if_id.rs,
+            self.id_ex.get_mem_control()[0],
+            self.id_ex.get_rt(),
+            self.if_id.get_instruction()[11:16],
+            self.if_id.get_instruction()[6:11],
             "HazardDetectionUnit"
         )
 
         self.control_unit = ControlUnit(
-            self.if_id.opcode,
+            self.if_id.get_instruction()[0:6],
             "ControlUnit"
         )
 
         self.alu_control_unit = ALUControlUnit(
             self.control_unit.output[:2],
-            self.id_ex.funct,
+            self.id_ex.get_funct(),
             "ALU_ControlUnit"
         )
 
+        # todo The one in the middle should be the mux result
         mux_a = [
             Mux_mxn(
-                (self.id_ex.ra[i], self.ex_mem.ar[i], self.mem_wb.ar[i]),
+                (self.id_ex.get_read_val1()[i], self.mem_wb.ra[i], self.ex_mem.get_alu_result()[i]),
                 self.forwarding_unit.outputs[0],
                 2,
                 f"MUX_ALU_Input_A{i}"
             ) for i in range(32)  # todo len of what?
         ]
 
+        # todo This one too
         mux_b = [
             Mux_mxn(
-                (self.id_ex.rb[i], self.ex_mem.ar[i], self.mem_wb.ar[i]),
+                (self.id_ex.get_read_val2()[i], self.mem_wb.ar[i], self.ex_mem.get_alu_result()[i]),
                 self.forwarding_unit.outputs[0],
                 2,
                 f"MUX_ALU_Input_B{i}"
             ) for i in range(32)  # todo len of what?
         ]
+
+
+        # todo Output of mux or what???
         mux_b2 = [
             Mux_mxn(
-                (self.id_ex.rb[i], self.ex_mem.ar[i], self.mem_wb.ar[i]),
+                (mux_b[i].output, self.id_ex.get_immediate()[i]),
                 None,  # TODO what is selector
                 1,
                 f"MUX_ALU_Input_B{i}"
@@ -84,12 +99,12 @@ class MIPS:
             mux_b2,
             self.alu_control_unit.output[0],
             self.alu_control_unit.output[1:],
-            None,  # TODO SHAMT
+            self.id_ex.get_immediate(),  # TODO Is SHAMT the immediate field of ID_EX????????
             "ALU"
         )
 
-        self.register_file_unit = RegisterFileUnit(
-
-        )
+        # self.register_file_unit = RegisterFileUnit(
+        #
+        # )
 
         # self.register_file_unit = RegisterFileUnit

@@ -248,11 +248,11 @@ def test_branch_predictor():
 
 def test_pipeline_reg():
     clock = Signal()
-    inps = [Input() for _ in range(71)]
+    inps = [Input() for _ in range(119)]
     # if_flush = Input()  For if_id register
     # if_flush.output = 1
-    set_random_value(32, inps, "Register inputs")
-    reg = PC(clock, inps)
+    set_random_value(119, inps, "Register inputs")
+    reg = ID_EX(clock, inps)
     for _ in range(3):
         print(clock.output.output)
         output = reg.logic()

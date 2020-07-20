@@ -25,7 +25,7 @@ class MEM_WB(Register):
         self.rd = outputs[0:5]
         self.alu_result = outputs[5:37]
         self.memory_data = outputs[37:69]
-        self.wb_control = outputs[69:71]
+        self.wb_control = outputs[69:71]  # Indexes 0 and 1 are MemToReg and WriteReg
         return outputs
 
     def get_rd(self):

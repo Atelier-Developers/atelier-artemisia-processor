@@ -15,6 +15,7 @@ class ID_EX(Register):
         self.read_val1 = None
         self.read_val2 = None
         self.immediate = None
+        self.funct = None
         self.build()
 
     def logic(self, depend=None):
@@ -30,6 +31,7 @@ class ID_EX(Register):
         self.rt = outputs[5:10]
         self.rs = outputs[10:15]
         self.immediate = outputs[15:47]
+        self.funct = self.immediate[26:32]
         self.read_val2 = outputs[47:79]
         self.read_val1 = outputs[79:111]
         self.ex_control = outputs[111:115]  # Indexes 0, 1 , and [2,3] are respectively RegDst, AluSrc, and AluOP
@@ -63,3 +65,6 @@ class ID_EX(Register):
 
     def get_mem_control(self):
         return self.mem_control
+
+    def get_funct(self):
+        return self.funct
