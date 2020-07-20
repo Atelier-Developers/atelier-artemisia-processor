@@ -5,6 +5,11 @@ from Components.control_units.alu_control_unit import ALUControlUnit
 from Components.control_units.control_unit import ControlUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
+from Components.pipline_register.ex_mem import EX_MEM
+from Components.pipline_register.id_ex import ID_EX
+from Components.pipline_register.if_id import IF_ID
+from Components.pipline_register.mem_wb import MEM_WB
+from Components.pipline_register.pc import PC
 from Components.register_file.register import Register
 from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.alu.right_shift import RightSift
@@ -143,7 +148,7 @@ def test_left_shift():
 
 def set_random_value(n, input, name):
     read_gen = randomNBitGen(n)
-    # print(f"{name}: {read_gen}")
+    print(f"{name}: {read_gen}")
     bitsToGates(read_gen, input)
 
 
@@ -241,6 +246,17 @@ def test_branch_predictor():
         print(two_bit_saturating.get_output())
         clock.pulse()
 
+def test_pipeline_reg():
+    clock = Signal()
+    inps = [Input() for _ in range(71)]
+    # if_flush = Input()  For if_id register
+    # if_flush.output = 1
+    set_random_value(32, inps, "Register inputs")
+    reg = PC(clock, inps)
+    for _ in range(3):
+        print(clock.output.output)
+        output = reg.logic()
+        clock.pulse()
 
 
 
@@ -250,9 +266,10 @@ def test_branch_predictor():
 # test_right_shift()
 # test_left_shift()
 # test_sign_extend()
-test_reg_file()
+# test_reg_file()
 # test1()
 # test_alu()
+test_pipeline_reg()
 # forward_unit_test()
 # test_control_unit()
 # test_branch_predictor()

@@ -34,7 +34,9 @@ class Register:
     def __repr__(self):
         return f"{self.name} : {[bit.q() for bit in self.outputs]}"
 
-    def logic(self, depend=[]):
+    def logic(self, depend=None):
+        if depend is None:
+            depend = []
         if self in depend:
             if Register.DEBUGMODE:
                 print(self)
