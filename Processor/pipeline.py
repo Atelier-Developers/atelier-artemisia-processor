@@ -200,3 +200,11 @@ class Pipeline:
 
         pc_clock = And((self.clock, if_id_pc_write))
         self.pc.set_clock(pc_clock)
+
+    def logic(self, depend=None):
+        if depend is None:
+            depend = []
+        if self in depend:
+            return
+        depend.append(self)
+        self.mem_wb.logic(depend)
