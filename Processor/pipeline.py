@@ -16,6 +16,7 @@ from adder.full_adder import FullAdder
 from comparator.comparator import Comparator
 from gate.and_gate import And
 from gate.input_gate import Input
+from gate.not_gate import Not
 from gate.one_gate import One
 from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
@@ -63,6 +64,8 @@ class Pipeline:
 
         # Stage 2
 
+        zero = Zero()
+
         inst = self.if_id.get_instruction()
 
         self.hazard_detection_unit = HazardDetectionUnit(
@@ -84,12 +87,16 @@ class Pipeline:
                                                    "Pipeline_Register_File")
         self.sign_extend = SignExtend16To32(inst[16:32])
         shift_sign_extend = LeftSift(self.sign_extend, [Zero(), Zero(), Zero(), One(), Zero()], 32)
-        branch_adder = [FullAdder(shift_sign_extend.output[i], self.if_id.get_pc_address()[i]) for i in range(32)]
+
+        branch_adder = [FullAdder((shift_sign_extend.output[i], self.if_id.get_pc_address()[i]), None) for i in range(32)]
+        branch_adder[31].set_cin(zero)
+        for i in range(31, -1, -1):
+            branch_adder[i].set_cin(branch_adder[i+1].cout)
+
         branch_comp_input1 = [Input() for _ in range(32)]
         branch_comp_input2 = [Input() for _ in range(32)]
         branch_comparator = Comparator((self.register_file_unit.outputs[0], self.register_file_unit.outputs[1]), 32)
         branch_and = And((branch_comparator, self.control_unit.output[8]))
-        zero = Zero()
         # todo careful about hazard detection output
         id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), self.hazard_detection_unit.output, 1) for i in
                      range(len(self.control_unit.output) - 2)]
@@ -163,9 +170,27 @@ class Pipeline:
         inst_address = self.pc.get_instruction_address()
         four = [zero for _ in range(29)] + [One()] + [zero for _ in range(2)]  # 4
 
-        # pc_adder = [FullAdder(inst_address[i], four[i]) for i in range(32)]
+        pc_adder = [FullAdder((inst_address[i], four[i]), None) for i in range(32)]
+        pc_adder[31].set_cin(zero)
+        for i in range(31, -1, -1):
+            pc_adder[i].set_cin(pc_adder[i + 1].cout)
 
         # TODO set write address and value to None or Zero
         self.instruction_cache = MainMemory(self.clock, self.pc.get_instruction_address(), self.ex_mem.get_alu_result(),
                                             self.ex_mem.get_second_alu_src_value(), zero,
                                             One(), 16, "Pipeline_Instruction_Cache")
+
+        if_flush = branch_and.output
+        if_write = self.hazard_detection_unit.output
+
+        if_id_inputs = self.instruction_cache.output + pc_adder + [if_flush]
+        if_id_clock = And((Not(if_write), self.clock))
+
+        self.if_id.set_input(if_id_inputs)
+
+        self.if_id.set_clock(if_id_clock)
+
+
+
+
+

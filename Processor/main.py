@@ -94,7 +94,7 @@ def test_alu():
 
 
 def test_reg_file():
-    n = 32
+    n = 256
     reg_width = 32
     size = int(log(n, 2))
     read_num1 = [Input(f"Input{i}") for i in range(size)]
@@ -106,7 +106,7 @@ def test_reg_file():
 
     reg_file = RegisterFileUnit((read_num1, read_num2, write_num1, write_val), enable, clock, n, reg_width)
 
-    for i in range(100):
+    for i in range(1):
         # print("clock :" + str(clock.output.output))
         if i % 4 == 1:
             enable.output = 1
@@ -148,7 +148,7 @@ def test_left_shift():
 
 def set_random_value(n, input, name):
     read_gen = randomNBitGen(n)
-    print(f"{name}: {read_gen}")
+    # print(f"{name}: {read_gen}")
     bitsToGates(read_gen, input)
 
 
