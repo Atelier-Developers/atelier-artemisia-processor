@@ -2,7 +2,6 @@ import re
 
 j_format = {
     "j": "000010",
-    "jr": "000011"
 }
 i_format = {
     'beq': "000100",
@@ -88,6 +87,9 @@ def compile_asm(lines, registers):
             b.append(registers[ins[3]])
             b.append("00000")
             b.append(r_format[ins[0]])
+        elif ins[0] in j_format:
+            b.append(j_format[ins[0]])
+            b.append(bin(int(ins[1]))[2:].zfill(26))
         binary.append("".join(b))
 
     return binary
@@ -99,3 +101,6 @@ def compiler(file_name):
     lines = open(file_name).read().split('\n')
 
     return compile_asm(lines, registers)
+
+
+print(compiler("p.asm"))
