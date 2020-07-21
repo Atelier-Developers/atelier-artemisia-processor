@@ -6,11 +6,13 @@ from multiplexer.mux_mxn import Mux_mxn
 
 class IF_ID(Register):
 
-    def __init__(self, clock, inputs, if_flag, name="IF_ID_Register"):
-        if_id_inputs = [And((Not(if_flag), inputs[i])) for i in
+    def __init__(self, clock, inputs, name="IF_ID_Register"):
+        # 64th bit is IF.Flush
+        if_id_inputs = [And((Not(inputs[64]), inputs[i])) for i in
                         range(64)]  # Ands the Not of the flush signal with the inputs, to flush if the signal was 1
-        super().__init__(clock, if_id_inputs, 64, name)  # The clock should be the AND of the clock and IF.Write
-        self.if_flag = if_flag  # Should flush if 1,
+        if inputs is None:
+            if_id_inputs = None
+        super().__init__(clock, if_id_inputs, 65, name)  # The clock should be the AND of the clock and IF.Write
         self.instruction = None
         self.pc_address = None
         self.build()
@@ -20,6 +22,13 @@ class IF_ID(Register):
         out = self.outputs
         self.instruction = out[0:32]
         self.pc_address = out[32:64]
+
+    def set_input(self, inputs):
+        self.inputs = inputs
+        for i in range(self.size - 1):
+            self.outputs[i].set_input(And((Not(self.inputs[64]), self.inputs[i])))
+
+
 
     def get_instruction(self):
         return self.instruction

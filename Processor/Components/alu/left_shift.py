@@ -28,7 +28,9 @@ class LeftSift:
             self.output.append(Mux_mxn(inputs, self.b, size))
         return self.output
 
-    def logic(self, depend=[]):
+    def logic(self, depend=None):
+        if depend is None:
+            depend = []
         if self in depend:
             return self.output
         for i in range(self.width):
