@@ -13,6 +13,7 @@ from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.sign_extend.sign_extend_16to32 import SignExtend16To32
 from adder.full_adder import FullAdder
 from comparator.comparator import Comparator
+from gate.and_gate import And
 from gate.input_gate import Input
 from gate.one_gate import One
 from gate.zero_gate import Zero
@@ -137,3 +138,16 @@ class Pipeline:
         branch_comp_input2 = [Input() for _ in range(32)]
         # TODO SHOULD SET TWO REGISTER FILE READ VALUES IN INPUTS
         branch_comparator = Comparator((branch_comp_input1, branch_comp_input2), 32)
+        branch_and = And((branch_comparator, self.control_unit.output[8]))
+        zero = Zero()
+        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), self.hazard_detection_unit.output, 1).output for i in
+                     range(len(self.control_unit.output) - 2)]
+
+        # WARNING input?
+        id_ex_input = inst[16:21] + inst[11:16] + inst[6:11] + self.sign_extend.output + \
+                      self.register_file_unit.outputs[1] + self.register_file_unit.outputs[0] + \
+                      id_ex_mux[2:4] + id_ex_mux[0:2] + id_ex_mux[6:8] + id_ex_mux[4:6]
+
+        jump_address = self.if_id.get_pc_address()[:4] + inst[6:32] + [zero for _ in range(2)]
+
+        self.id_ex.set_input(id_ex_input)
