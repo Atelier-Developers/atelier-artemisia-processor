@@ -56,15 +56,42 @@ class Pipeline:
 
         self.pc = PC(self.clock, None, )
 
-        self.forwarding_unit = ForwardingUnit(
-            self.ex_mem.get_rd(),
-            self.mem_wb.get_rd(),
-            self.ex_mem.get_wb_control()[1],
-            self.mem_wb.get_wb_control()[1],
-            self.id_ex.get_rs(),
-            self.id_ex.get_rt(),
-            "FowardingUnit"
-        )
+        # # todo The one in the middle should be the mux result
+        # mux_a = [
+        #     Mux_mxn(
+        #         (self.id_ex.get_read_val1()[i], None, self.ex_mem.get_alu_result()[i]),
+        #         self.forwarding_unit.outputs[0],
+        #         2,
+        #         f"MUX_ALU_Input_A{i}"
+        #     ) for i in range(32)  # todo len of what?
+        # ]
+        #
+        # # todo This one too
+        # mux_b = [
+        #     Mux_mxn(
+        #         (self.id_ex.get_read_val2()[i], None, self.ex_mem.get_alu_result()[i]),
+        #         self.forwarding_unit.outputs[0],
+        #         2,
+        #         f"MUX_ALU_Input_B{i}"
+        #     ) for i in range(32)  # todo len of what?
+        # ]
+        #
+        # # todo Output of mux or what???
+        # mux_b2 = [
+        #     Mux_mxn(
+        #         (mux_b[i].output, self.id_ex.get_immediate()[i]),
+        #         None,  # TODO what is selector
+        #         1,
+        #         f"MUX_ALU_Input_B{i}"
+        #     ) for i in range(32)  # todo len of what?
+        # ]
+
+        # Stage 5
+        mem_wb_mux = [Mux_mxn((self.mem_wb.get_alu_result()[i], self.mem_wb.get_data_memory()[i]),
+                              self.mem_wb.get_wb_control()[0], 1).output for i in range(32)]
+
+        # STAGE 2
+        inst = self.if_id.get_instruction()
 
         self.hazard_detection_unit = HazardDetectionUnit(
             self.id_ex.get_mem_control()[0],
@@ -78,58 +105,6 @@ class Pipeline:
             self.if_id.get_instruction()[0:6],
             "ControlUnit"
         )
-
-        self.alu_control_unit = ALUControlUnit(
-            self.control_unit.output[:2],
-            self.id_ex.get_funct(),
-            "ALU_ControlUnit"
-        )
-
-        # todo The one in the middle should be the mux result
-        mux_a = [
-            Mux_mxn(
-                (self.id_ex.get_read_val1()[i], None, self.ex_mem.get_alu_result()[i]),
-                self.forwarding_unit.outputs[0],
-                2,
-                f"MUX_ALU_Input_A{i}"
-            ) for i in range(32)  # todo len of what?
-        ]
-
-        # todo This one too
-        mux_b = [
-            Mux_mxn(
-                (self.id_ex.get_read_val2()[i], None, self.ex_mem.get_alu_result()[i]),
-                self.forwarding_unit.outputs[0],
-                2,
-                f"MUX_ALU_Input_B{i}"
-            ) for i in range(32)  # todo len of what?
-        ]
-
-        # todo Output of mux or what???
-        mux_b2 = [
-            Mux_mxn(
-                (mux_b[i].output, self.id_ex.get_immediate()[i]),
-                None,  # TODO what is selector
-                1,
-                f"MUX_ALU_Input_B{i}"
-            ) for i in range(32)  # todo len of what?
-        ]
-
-        self.alu = ALU(
-            mux_a,
-            mux_b2,
-            self.alu_control_unit.output[0],
-            self.alu_control_unit.output[1:],
-            self.id_ex.get_immediate()[21:26],  # TODO Is SHAMT the immediate field of ID_EX????????
-            "ALU"
-        )
-
-        # Stage 5
-        mem_wb_mux = [Mux_mxn((self.mem_wb.get_alu_result()[i], self.mem_wb.get_data_memory()[i]),
-                              self.mem_wb.get_wb_control()[0], 1).output for i in range(32)]
-
-        # STAGE 2
-        inst = self.if_id.get_instruction()
 
         # write value = mux stage 5,
         self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), mem_wb_mux),
@@ -158,6 +133,16 @@ class Pipeline:
 
         # Stage 3
 
+        self.forwarding_unit = ForwardingUnit(
+            self.ex_mem.get_rd(),
+            self.mem_wb.get_rd(),
+            self.ex_mem.get_wb_control()[1],
+            self.mem_wb.get_wb_control()[1],
+            self.id_ex.get_rs(),
+            self.id_ex.get_rt(),
+            "ForwardingUnit"
+        )
+
         mux_forwarding_a = [
             Mux_mxn((self.id_ex.get_read_val1()[i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
                     self.forwarding_unit.get_output()[0], 2).output for i in range(32)]
@@ -165,3 +150,29 @@ class Pipeline:
             Mux_mxn((self.id_ex.get_read_val2()[i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
                     self.forwarding_unit.get_output()[1], 2).output for i in range(32)]
 
+        mux_alu_src = [
+            Mux_mxn((mux_forwarding_b[i], self.id_ex.get_immediate()[i]),
+                    self.id_ex.get_ex_control()[1], 1).output for i in range(32)]
+
+        self.alu_control_unit = ALUControlUnit(
+            self.id_ex.get_ex_control()[2:4],
+            self.id_ex.get_funct(),
+            "ALU_ControlUnit"
+        )
+
+        self.alu = ALU(
+            mux_forwarding_a,
+            mux_alu_src,
+            self.alu_control_unit.output[0],
+            self.alu_control_unit.output[1:],
+            self.id_ex.get_immediate()[21:26],
+            "ALU"
+        )
+
+        mux_reg_dst = [
+            Mux_mxn((self.id_ex.get_rd()[i], self.id_ex.get_rt()[i]),
+                    self.id_ex.get_ex_control()[0], 1).output for i in range(5)]
+
+        ex_mem_inputs = mux_reg_dst + mux_alu_src + self.alu.output + self.id_ex.get_mem_control() \
+                        + self.id_ex.get_wb_control()
+        self.ex_mem.set_input(ex_mem_inputs)
