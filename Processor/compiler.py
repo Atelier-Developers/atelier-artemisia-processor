@@ -87,6 +87,7 @@ def compile_asm(lines, registers):
             b.append(registers[ins[1]])
             b.append(registers[ins[2]])
             b.append(registers[ins[3]])
+            b.append("00000")
             b.append(r_format[ins[0]])
         binary.append("".join(b))
 
