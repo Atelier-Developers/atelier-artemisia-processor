@@ -24,6 +24,8 @@ class MainMemory:
     def logic(self, depend=None):
         if depend is None:
             depend = []
+        if self in depend:
+            return self.output
         depend.append(self)
         for bank in self.output:
             bank.logic(depend)
