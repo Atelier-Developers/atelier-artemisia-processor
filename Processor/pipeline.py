@@ -66,7 +66,7 @@ class Pipeline:
         # Stage 5
 
         mem_wb_mux = [Mux_mxn((self.mem_wb.get_alu_result()[i], self.mem_wb.get_data_memory()[i]),
-                              self.mem_wb.get_wb_control()[0], 1) for i in range(32)]
+                              (self.mem_wb.get_wb_control()[0],), 1) for i in range(32)]
 
         # Stage 2
 
@@ -92,12 +92,12 @@ class Pipeline:
                                                    self.mem_wb.get_wb_control()[1], self.clock, 32, 32,
                                                    "Pipeline_Register_File")
         self.sign_extend = SignExtend16To32(inst[16:32])
-        shift_sign_extend = LeftSift(self.sign_extend, [Zero(), Zero(), Zero(), One(), Zero()], 32)
+        shift_sign_extend = LeftSift(self.sign_extend.output, [Zero(), Zero(), Zero(), One(), Zero()], 32)
 
         branch_adder = [FullAdder((shift_sign_extend.output[i], self.if_id.get_pc_address()[i]), None) for i in
                         range(32)]
         branch_adder[31].set_cin(zero)
-        for i in range(31, -1, -1):
+        for i in range(30, -1, -1):
             branch_adder[i].set_cin(branch_adder[i + 1].cout)
 
         branch_comp_input1 = [Input() for _ in range(32)]
@@ -105,7 +105,7 @@ class Pipeline:
         branch_comparator = Comparator((self.register_file_unit.outputs[0], self.register_file_unit.outputs[1]), 32)
         branch_and = And((branch_comparator, self.control_unit.output[8]))
         # todo careful about hazard detection output
-        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), self.hazard_detection_unit.output, 1) for i in
+        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1) for i in
                      range(len(self.control_unit.output) - 2)]
 
         # todo WARNING input?
@@ -138,7 +138,7 @@ class Pipeline:
 
         mux_alu_src = [
             Mux_mxn((mux_forwarding_b[i], self.id_ex.get_immediate()[i]),
-                    self.id_ex.get_ex_control()[1], 1) for i in range(32)]
+                    (self.id_ex.get_ex_control()[1],), 1) for i in range(32)]
 
         self.alu_control_unit = ALUControlUnit(
             self.id_ex.get_ex_control()[2:4],
@@ -157,7 +157,7 @@ class Pipeline:
 
         mux_reg_dst = [
             Mux_mxn((self.id_ex.get_rd()[i], self.id_ex.get_rt()[i]),
-                    self.id_ex.get_ex_control()[0], 1) for i in range(5)]
+                    (self.id_ex.get_ex_control()[0],), 1) for i in range(5)]
 
         ex_mem_inputs = mux_reg_dst + mux_alu_src + self.alu.output + self.id_ex.get_mem_control() \
                         + self.id_ex.get_wb_control()
@@ -169,7 +169,11 @@ class Pipeline:
                                      self.ex_mem.get_second_alu_src_value(), self.ex_mem.get_mem_control()[1],
                                      self.ex_mem.get_mem_control()[0], 16, "Pipeline_Data_Cache")
 
-        mem_wb_inputs = self.ex_mem.get_rd() + self.ex_mem.get_alu_result() + self.data_cache.output + self.ex_mem.get_wb_control()
+        data_cache_output = []
+        for i in range(4):
+            data_cache_output += self.data_cache.output[i].output
+
+        mem_wb_inputs = self.ex_mem.get_rd() + self.ex_mem.get_alu_result() + data_cache_output + self.ex_mem.get_wb_control()
         self.mem_wb.set_input(mem_wb_inputs)
 
         # Stage 1
@@ -179,7 +183,7 @@ class Pipeline:
 
         pc_adder = [FullAdder((inst_address[i], four[i]), None) for i in range(32)]
         pc_adder[31].set_cin(zero)
-        for i in range(31, -1, -1):
+        for i in range(30, -1, -1):
             pc_adder[i].set_cin(pc_adder[i + 1].cout)
 
         # TODO set write address and value to None or Zero
@@ -191,7 +195,11 @@ class Pipeline:
         if_flush = branch_and.output
         if_id_pc_write = self.hazard_detection_unit.output
 
-        if_id_inputs = self.instruction_cache.output + pc_adder + [if_flush]
+        inst_cache_output = []
+        for i in range(4):
+            inst_cache_output += self.instruction_cache.output[i].output
+
+        if_id_inputs = inst_cache_output + pc_adder + [if_flush]
         if_id_clock = And((Not(if_id_pc_write), self.clock))
 
         self.if_id.set_input(if_id_inputs)
@@ -199,8 +207,8 @@ class Pipeline:
         self.if_id.set_clock(if_id_clock)
 
         # PC Fetching
-        mux_branch = [Mux_mxn((pc_adder[i], branch_adder[i]), branch_and, 1) for i in range(32)]
-        mux_jump = [Mux_mxn((mux_branch[i], jump_address[i]), self.control_unit.output[9], 1) for i in range(32)]
+        mux_branch = [Mux_mxn((pc_adder[i], branch_adder[i]), (branch_and,), 1) for i in range(32)]
+        mux_jump = [Mux_mxn((mux_branch[i], jump_address[i]), (self.control_unit.output[9],), 1) for i in range(32)]
 
         pc_input = mux_jump
         self.pc.set_input(pc_input)
@@ -236,7 +244,6 @@ class Pipeline:
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
-
 
     def set_pc(self, value):
         pass
