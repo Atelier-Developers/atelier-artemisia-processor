@@ -14,6 +14,7 @@ from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.sign_extend.sign_extend_16to32 import SignExtend16To32
 from adder.full_adder import FullAdder
 from comparator.comparator import Comparator
+from compiler import compiler
 from gate.and_gate import And
 from gate.input_gate import Input
 from gate.not_gate import Not
@@ -208,3 +209,13 @@ class Pipeline:
             return
         depend.append(self)
         self.mem_wb.logic(depend)
+
+    def load_instructions_to_memory(self, file_name):
+        instructions = compiler(file_name)
+        for inst in instructions:
+
+
+    def set_pc(self, value):
+        pass
+
+    # we assume that data memory is initialized to zero

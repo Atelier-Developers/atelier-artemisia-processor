@@ -68,10 +68,9 @@ def compile_asm(lines, registers):
     instructions = []
     for line in lines:
         ins = re.findall("^[a-z]+", line)
-        regs = re.findall("\$[a-z]+[0-9]|[0-9]+", line)
+        regs = re.findall("\$[a-z]+[0-9]|[0-9]+|\$zero", line)
         instructions.append(ins + regs)
 
-    print(instructions)
     binary = []
 
     for ins in instructions:
