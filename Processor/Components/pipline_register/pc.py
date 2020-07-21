@@ -8,7 +8,6 @@ class PC(Register):
         self.instruction_address = None
         self.build()
 
-
     def build(self):
         super().build()
         self.instruction_address = self.outputs
@@ -25,3 +24,6 @@ class PC(Register):
             flip_flop.logic(depend)
         outputs = self.get_output()
         return outputs
+
+    def get_instruction_address(self):
+        return self.instruction_address

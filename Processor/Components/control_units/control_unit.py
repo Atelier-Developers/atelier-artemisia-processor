@@ -36,7 +36,9 @@ class ControlUnit:
         jump = And((not_opcode5, not_opcode4, not_opcode3, not_opcode2, self.opcode[1]), f"{self.name}_and_jump")
         self.output = alu_op0, alu_op1, reg_dst, alu_src, mem_to_reg, reg_write, mem_read, mem_write, branch, jump
 
-    def logic(self, depend=[]):
+    def logic(self, depend=None):
+        if depend is None:
+            depend = []
         if self in depend:
             return self.output
         for block in self.output:
