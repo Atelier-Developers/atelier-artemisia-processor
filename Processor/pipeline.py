@@ -88,10 +88,11 @@ class Pipeline:
         self.sign_extend = SignExtend16To32(inst[16:32])
         shift_sign_extend = LeftSift(self.sign_extend, [Zero(), Zero(), Zero(), One(), Zero()], 32)
 
-        branch_adder = [FullAdder((shift_sign_extend.output[i], self.if_id.get_pc_address()[i]), None) for i in range(32)]
+        branch_adder = [FullAdder((shift_sign_extend.output[i], self.if_id.get_pc_address()[i]), None) for i in
+                        range(32)]
         branch_adder[31].set_cin(zero)
         for i in range(31, -1, -1):
-            branch_adder[i].set_cin(branch_adder[i+1].cout)
+            branch_adder[i].set_cin(branch_adder[i + 1].cout)
 
         branch_comp_input1 = [Input() for _ in range(32)]
         branch_comp_input2 = [Input() for _ in range(32)]
@@ -181,16 +182,21 @@ class Pipeline:
                                             One(), 16, "Pipeline_Instruction_Cache")
 
         if_flush = branch_and.output
-        if_write = self.hazard_detection_unit.output
+        if_id_pc_write = self.hazard_detection_unit.output
 
         if_id_inputs = self.instruction_cache.output + pc_adder + [if_flush]
-        if_id_clock = And((Not(if_write), self.clock))
+        if_id_clock = And((Not(if_id_pc_write), self.clock))
 
         self.if_id.set_input(if_id_inputs)
 
         self.if_id.set_clock(if_id_clock)
 
+        # PC Fetching
+        mux_branch = [Mux_mxn((pc_adder[i], branch_adder[i]), branch_and, 1) for i in range(32)]
+        mux_jump = [Mux_mxn((mux_branch[i], jump_address[i]), self.control_unit.output[9], 1) for i in range(32)]
 
+        pc_input = mux_jump
+        self.pc.set_input(pc_input)
 
-
-
+        pc_clock = And((self.clock, if_id_pc_write))
+        self.pc.set_clock(pc_clock)
