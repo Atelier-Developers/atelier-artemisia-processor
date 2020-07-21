@@ -13,11 +13,11 @@ class MEM_WB(Register):
 
     def build(self):
         super().build()
-        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        out = self.outputs
         self.rd = out[0:5]
         self.alu_result = out[5:37]
         self.memory_data = out[37:69]
-        self.wb_control = out[69:71] # indexes 0 and 1 are MemToReg and RegWrite
+        self.wb_control = out[69:71]  # indexes 0 and 1 are MemToReg and RegWrite
 
     def get_rd(self):
         return self.rd

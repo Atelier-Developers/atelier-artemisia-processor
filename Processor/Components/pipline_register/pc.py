@@ -8,6 +8,11 @@ class PC(Register):
         self.instruction_address = None
         self.build()
 
+
+    def build(self):
+        super().build()
+        self.instruction_address = self.outputs
+
     def logic(self, depend=None):
         if depend is None:
             depend = []
@@ -19,5 +24,4 @@ class PC(Register):
         for flip_flop in self.outputs:
             flip_flop.logic(depend)
         outputs = self.get_output()
-        self.instruction_address = outputs
         return outputs

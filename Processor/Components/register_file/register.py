@@ -14,18 +14,18 @@ class Register:
         self.build()
 
     def build(self):
-        if self.inputs is None:
-            return
         self.outputs = []
         output_app = self.outputs.append
         for i in range(self.size):
             output_app(D_FlipFlop(self.clock, None, f"{self.name}_Latch_{i}"))
-        for i in range(self.size):
-            self.outputs[i].set_input(self.inputs[i])
+        if self.inputs:
+            for i in range(self.size):
+                self.outputs[i].set_input(self.inputs[i])
 
     def set_input(self, inputs):
         self.inputs = inputs
-        self.build()
+        for i in range(self.size):
+            self.outputs[i].set_input(self.inputs[i])
 
     def set_clock(self, clock):
         self.clock = clock

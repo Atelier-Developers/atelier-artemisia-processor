@@ -20,7 +20,7 @@ class ID_EX(Register):
 
     def build(self):
         super().build()
-        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        out = self.outputs
         self.rd = out[0:5]
         self.rt = out[5:10]
         self.rs = out[10:15]

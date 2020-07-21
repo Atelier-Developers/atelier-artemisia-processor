@@ -14,7 +14,7 @@ class EX_MEM(Register):
 
     def build(self):
         super().build()
-        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        out = self.outputs
         self.rd = out[0:5]
         self.second_alu_src_value = out[5:37]
         self.alu_result = out[37:69]

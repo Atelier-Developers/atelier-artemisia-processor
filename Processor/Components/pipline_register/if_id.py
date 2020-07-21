@@ -17,7 +17,7 @@ class IF_ID(Register):
 
     def build(self):
         super().build()
-        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        out = self.outputs
         self.instruction = out[0:32]
         self.pc_address = out[32:64]
 
