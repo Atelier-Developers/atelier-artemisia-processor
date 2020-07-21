@@ -11,12 +11,16 @@ from Components.pipline_register.mem_wb import MEM_WB
 from Components.pipline_register.pc import PC
 from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.sign_extend.sign_extend_16to32 import SignExtend16To32
+from adder.full_adder import FullAdder
+from comparator.comparator import Comparator
+from gate.input_gate import Input
 from gate.one_gate import One
 from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
 
 
 class Pipeline:
+
     def __init__(self, clock):
         # Get an instruciton list maybe?
 
@@ -27,6 +31,7 @@ class Pipeline:
         self.alu_control_unit: ALUControlUnit = None
         self.hazard_detection_unit: HazardDetectionUnit = None
         self.register_file_unit: RegisterFileUnit = None
+        self.sign_extend: SignExtend16To32 = None
 
         # Pipeline registers
         self.pc: PC = None
@@ -37,7 +42,12 @@ class Pipeline:
         self.clock = clock
         self.build()
 
+    def bitsToGates(self, bitString, inputs):
+        for i in range(len(bitString)):
+            inputs[i].output = 0 if bitString[i] == "0" else 1
+
     def build(self):
+        # Initializing Pipeline registers
         self.ex_mem = EX_MEM(self.clock, None)
         self.mem_wb = MEM_WB(self.clock, None)
         self.id_ex = ID_EX(self.clock, None)
@@ -109,14 +119,21 @@ class Pipeline:
             mux_b2,
             self.alu_control_unit.output[0],
             self.alu_control_unit.output[1:],
-            self.id_ex.get_immediate(),  # TODO Is SHAMT the immediate field of ID_EX????????
+            self.id_ex.get_immediate()[21:26],  # TODO Is SHAMT the immediate field of ID_EX????????
             "ALU"
         )
 
+        # STAGE 2
         inst = self.if_id.get_instruction()
 
-        # write value = mux stage 5
-        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), None))
+        # write value = mux stage 5,
+        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), None),
+                                                   self.mem_wb.get_wb_control()[1], self.clock, 32, 32,
+                                                   "Pipeline_Register_File")
         self.sign_extend = SignExtend16To32(inst[16:32])
         shift_sign_extend = LeftSift(self.sign_extend.output, [Zero(), Zero(), Zero(), One(), Zero()], 32)
-
+        branch_adder = [FullAdder(shift_sign_extend.output[i], self.if_id.get_pc_address()[i]) for i in range(32)]
+        branch_comp_input1 = [Input() for _ in range(32)]
+        branch_comp_input2 = [Input() for _ in range(32)]
+        # TODO SHOULD SET TWO REGISTER FILE READ VALUES IN INPUTS
+        branch_comparator = Comparator((branch_comp_input1, branch_comp_input2), 32)
