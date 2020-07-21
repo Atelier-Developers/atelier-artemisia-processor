@@ -1,4 +1,5 @@
 from compiler import compiler
+from pipeline import Pipeline
 
 
 def test_compiler():
@@ -6,4 +7,10 @@ def test_compiler():
     print(list(map(str, compiler(file_name))))
 
 
-test_compiler()
+
+def test_pipeline():
+    Pipeline.run("p.asm")
+
+
+# test_compiler()
+test_pipeline()

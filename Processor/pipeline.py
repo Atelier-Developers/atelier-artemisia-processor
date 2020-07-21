@@ -21,11 +21,13 @@ from gate.not_gate import Not
 from gate.one_gate import One
 from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
+from signals.signal import Signal
+from utils import bits_to_gates
 
 
 class Pipeline:
 
-    def __init__(self, clock):
+    def __init__(self, clock, write_instruction_value, write_instruction_address, load):
         # Get an instruciton list maybe?
 
         # Components
@@ -38,6 +40,9 @@ class Pipeline:
         self.sign_extend: SignExtend16To32 = None
         self.data_cache: MainMemory = None
         self.instruction_cache: MainMemory = None
+        self.write_instruction_value = write_instruction_value
+        self.write_instruction_address = write_instruction_address
+        self.load = load
 
         # Pipeline registers
         self.pc: PC = None
@@ -45,7 +50,7 @@ class Pipeline:
         self.id_ex: ID_EX = None
         self.ex_mem: EX_MEM = None
         self.mem_wb: MEM_WB = None
-        self.clock = clock
+        self.clock = And((clock, load))
         self.build()
 
     def build(self):
@@ -178,9 +183,10 @@ class Pipeline:
             pc_adder[i].set_cin(pc_adder[i + 1].cout)
 
         # TODO set write address and value to None or Zero
-        self.instruction_cache = MainMemory(self.clock, self.pc.get_instruction_address(), self.ex_mem.get_alu_result(),
-                                            self.ex_mem.get_second_alu_src_value(), zero,
-                                            One(), 16, "Pipeline_Instruction_Cache")
+        self.instruction_cache = MainMemory(self.clock, self.pc.get_instruction_address(),
+                                            self.write_instruction_address,
+                                            self.write_instruction_value, self.load,
+                                            Not(self.load), 16, "Pipeline_Instruction_Cache")
 
         if_flush = branch_and.output
         if_id_pc_write = self.hazard_detection_unit.output
@@ -210,9 +216,26 @@ class Pipeline:
         depend.append(self)
         self.mem_wb.logic(depend)
 
-    def load_instructions_to_memory(self, file_name):
+    # def load_instructions_to_memory(self, file_name):
+    #     instructions = compiler(file_name)
+    #     for inst in instructions:
+
+    @staticmethod
+    def run(file_name):
         instructions = compiler(file_name)
-        for inst in instructions:
+        load_input = Input()
+        load_input.output = 1
+        write_val_inp = [Input() for _ in range(32)]
+        write_address_inp = [Input() for _ in range(32)]
+        clock = Signal()
+        pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
+        for i in range(len(instructions)):
+            address = bin(i)[2:].zfill(32)
+            bits_to_gates(address, write_address_inp)
+            bits_to_gates(instructions[i], write_val_inp)
+            for _ in range(2):
+                pipeline.logic()
+                clock.pulse()
 
 
     def set_pc(self, value):
