@@ -93,8 +93,9 @@ def compile_asm(lines, registers):
     return binary
 
 
-registers = reg_init()
+def compiler(file_name):
+    registers = reg_init()
 
-lines = open("p.asm").read().split('\n')
+    lines = open(file_name).read().split('\n')
 
-compile_asm(lines, registers)
+    return compile_asm(lines, registers)
