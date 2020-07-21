@@ -124,11 +124,15 @@ class Pipeline:
             "ALU"
         )
 
+        # Stage 5
+        mem_wb_mux = [Mux_mxn((self.mem_wb.get_alu_result()[i], self.mem_wb.get_data_memory()[i]),
+                              self.mem_wb.get_wb_control()[0], 1).output for i in range(32)]
+
         # STAGE 2
         inst = self.if_id.get_instruction()
 
         # write value = mux stage 5,
-        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), None),
+        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), mem_wb_mux),
                                                    self.mem_wb.get_wb_control()[1], self.clock, 32, 32,
                                                    "Pipeline_Register_File")
         self.sign_extend = SignExtend16To32(inst[16:32])
@@ -151,3 +155,13 @@ class Pipeline:
         jump_address = self.if_id.get_pc_address()[:4] + inst[6:32] + [zero for _ in range(2)]
 
         self.id_ex.set_input(id_ex_input)
+
+        # Stage 3
+
+        mux_forwarding_a = [
+            Mux_mxn((self.id_ex.get_read_val1()[i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
+                    self.forwarding_unit.get_output()[0], 2).output for i in range(32)]
+        mux_forwarding_b = [
+            Mux_mxn((self.id_ex.get_read_val2()[i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
+                    self.forwarding_unit.get_output()[1], 2).output for i in range(32)]
+
