@@ -1,4 +1,5 @@
 from Components.alu.alu import ALU
+from Components.alu.left_shift import LeftSift
 from Components.control_units.control_unit import ControlUnit
 from Components.control_units.alu_control_unit import ALUControlUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
@@ -9,6 +10,9 @@ from Components.pipline_register.if_id import IF_ID
 from Components.pipline_register.mem_wb import MEM_WB
 from Components.pipline_register.pc import PC
 from Components.register_file.register_file_unit import RegisterFileUnit
+from Components.sign_extend.sign_extend_16to32 import SignExtend16To32
+from gate.one_gate import One
+from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
 
 
@@ -34,13 +38,12 @@ class Pipeline:
         self.build()
 
     def build(self):
-
         self.ex_mem = EX_MEM(self.clock, None)
         self.mem_wb = MEM_WB(self.clock, None)
         self.id_ex = ID_EX(self.clock, None)
         self.if_id = IF_ID(self.clock, None, None)
 
-        self.pc = PC(self.clock, None,)
+        self.pc = PC(self.clock, None, )
 
         self.forwarding_unit = ForwardingUnit(
             self.ex_mem.get_rd(),
@@ -74,7 +77,7 @@ class Pipeline:
         # todo The one in the middle should be the mux result
         mux_a = [
             Mux_mxn(
-                (self.id_ex.get_read_val1()[i], self.mem_wb.ra[i], self.ex_mem.get_alu_result()[i]),
+                (self.id_ex.get_read_val1()[i], None, self.ex_mem.get_alu_result()[i]),
                 self.forwarding_unit.outputs[0],
                 2,
                 f"MUX_ALU_Input_A{i}"
@@ -84,7 +87,7 @@ class Pipeline:
         # todo This one too
         mux_b = [
             Mux_mxn(
-                (self.id_ex.get_read_val2()[i], self.mem_wb.ar[i], self.ex_mem.get_alu_result()[i]),
+                (self.id_ex.get_read_val2()[i], None, self.ex_mem.get_alu_result()[i]),
                 self.forwarding_unit.outputs[0],
                 2,
                 f"MUX_ALU_Input_B{i}"
@@ -110,8 +113,10 @@ class Pipeline:
             "ALU"
         )
 
-        # self.register_file_unit = RegisterFileUnit(
-        #
-        # )
+        inst = self.if_id.get_instruction()
 
-        # self.register_file_unit = RegisterFileUnit
+        # write value = mux stage 5
+        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), None))
+        self.sign_extend = SignExtend16To32(inst[16:32])
+        shift_sign_extend = LeftSift(self.sign_extend.output, [Zero(), Zero(), Zero(), One(), Zero()], 32)
+
