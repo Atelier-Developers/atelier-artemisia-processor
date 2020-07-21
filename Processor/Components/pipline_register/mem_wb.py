@@ -11,22 +11,13 @@ class MEM_WB(Register):
         self.rd = None
         self.build()
 
-    def logic(self, depend=None):
-        if depend is None:
-            depend = []
-        if self in depend:
-            if Register.DEBUGMODE:
-                print(self)
-            return self.outputs
-        depend.append(self)
-        for flip_flop in self.outputs:
-            flip_flop.logic(depend)
-        outputs = self.get_output()
-        self.rd = outputs[0:5]
-        self.alu_result = outputs[5:37]
-        self.memory_data = outputs[37:69]
-        self.wb_control = outputs[69:71]  # Indexes 0 and 1 are MemToReg and WriteReg
-        return outputs
+    def build(self):
+        super().build()
+        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        self.rd = out[0:5]
+        self.alu_result = out[5:37]
+        self.memory_data = out[37:69]
+        self.wb_control = out[69:71]
 
     def get_rd(self):
         return self.rd

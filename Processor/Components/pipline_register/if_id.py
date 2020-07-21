@@ -15,18 +15,11 @@ class IF_ID(Register):
         self.pc_address = None
         self.build()
 
-    def logic(self, depend=None):
-        if depend is None:
-            depend = []
-        if self in depend:
-            return self.outputs
-        depend.append(self)
-        for flip_flop in self.outputs:
-            flip_flop.logic(depend)
-        outputs = self.get_output()
-        self.instruction = outputs[0:32]
-        self.pc_address = outputs[32:64]
-        return outputs
+    def build(self):
+        super().build()
+        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        self.instruction = out[0:32]
+        self.pc_address = out[32:64]
 
     def get_instruction(self):
         return self.instruction

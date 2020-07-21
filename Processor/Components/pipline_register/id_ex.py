@@ -18,27 +18,21 @@ class ID_EX(Register):
         self.funct = None
         self.build()
 
-    def logic(self, depend=None):
-        if depend is None:
-            depend = []
-        if self in depend:
-            return self.outputs
-        depend.append(self)
-        for flip_flop in self.outputs:
-            flip_flop.logic(depend)
-        outputs = self.get_output()
-        self.rd = outputs[0:5]
-        self.rt = outputs[5:10]
-        self.rs = outputs[10:15]
-        self.immediate = outputs[15:47]
+    def build(self):
+        super().build()
+        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        self.rd = out[0:5]
+        self.rt = out[5:10]
+        self.rs = out[10:15]
+        self.immediate = out[15:47]
         self.funct = self.immediate[26:32]
-        self.read_val2 = outputs[47:79]
-        self.read_val1 = outputs[79:111]
-        self.ex_control = outputs[111:115]  # Indexes 0, 1 , and [2,3] are respectively RegDst, AluSrc, and AluOP
-        self.mem_control = outputs[115:117]  # Indexes 0, and 1 are respectively MemRead, and MemWrite
-        self.wb_control = outputs[117:119]  # Indexes 0 and 1 are respectively MemToReg, and RegWrite
-        return outputs
+        self.read_val2 = out[47:79]
+        self.read_val1 = out[79:111]
+        self.ex_control = out[111:115]  # Indexes 0, 1 , and [2,3] are respectively RegDst, AluSrc, and AluOP
+        self.mem_control = out[115:117]  # Indexes 0, and 1 are respectively MemRead, and MemWrite
+        self.wb_control = out[117:119]  # Indexes 0 and 1 are respectively MemToReg, and RegWrite
 
+    # TODO change get to bit evaluation
     def get_rs(self):
         return self.rs
 

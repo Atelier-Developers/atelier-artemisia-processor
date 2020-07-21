@@ -246,6 +246,7 @@ def test_branch_predictor():
         print(two_bit_saturating.get_output())
         clock.pulse()
 
+
 def test_pipeline_reg():
     clock = Signal()
     inps = [Input() for _ in range(119)]
@@ -257,6 +258,7 @@ def test_pipeline_reg():
         print(clock.output.output)
         output = reg.logic()
         clock.pulse()
+
 
 
 

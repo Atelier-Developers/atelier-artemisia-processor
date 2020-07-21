@@ -12,21 +12,14 @@ class EX_MEM(Register):
         self.rd = None
         self.build()
 
-    def logic(self, depend=None):
-        if depend is None:
-            depend = []
-        if self in depend:
-            return self.outputs
-        depend.append(self)
-        for flip_flop in self.outputs:
-            flip_flop.logic(depend)
-        outputs = self.get_output()
-        self.rd = outputs[0:5]
-        self.second_alu_src_value = outputs[5:37]
-        self.alu_result = outputs[37:69]
-        self.mem_control = outputs[69:71]  # Indexes 0, and 1 are MemRead and MemWrite respectively
-        self.wb_control = outputs[71:73]  # Indexes 0, and 1 are MemToReg and WriteReg respectively
-        return outputs
+    def build(self):
+        super().build()
+        out = [self.outputs[i].output for i in range(len(self.outputs))]
+        self.rd = out[0:5]
+        self.second_alu_src_value = out[5:37]
+        self.alu_result = out[37:69]
+        self.mem_control = out[69:71]  # Indexes 0, and 1 are MemRead and MemWrite respectively
+        self.wb_control = out[71:73]  # Indexes 0, and 1 are MemToReg and WriteReg respectively
 
     def get_wb_control(self):
         return self.wb_control

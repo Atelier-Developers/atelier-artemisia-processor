@@ -13,7 +13,7 @@ from multiplexer.mux_mxn import Mux_mxn
 
 
 class Pipeline:
-    def __init__(self):
+    def __init__(self, clock):
         # Get an instruciton list maybe?
 
         # Components
@@ -30,10 +30,18 @@ class Pipeline:
         self.id_ex: ID_EX = None
         self.ex_mem: EX_MEM = None
         self.mem_wb: MEM_WB = None
-
+        self.clock = clock
         self.build()
 
     def build(self):
+
+        self.ex_mem = EX_MEM(self.clock, None)
+        self.mem_wb = MEM_WB(self.clock, None)
+        self.id_ex = ID_EX(self.clock, None)
+        self.if_id = IF_ID(self.clock, None, None)
+
+        self.pc = PC(self.clock, None,)
+
         self.forwarding_unit = ForwardingUnit(
             self.ex_mem.get_rd(),
             self.mem_wb.get_rd(),
@@ -82,7 +90,6 @@ class Pipeline:
                 f"MUX_ALU_Input_B{i}"
             ) for i in range(32)  # todo len of what?
         ]
-
 
         # todo Output of mux or what???
         mux_b2 = [
