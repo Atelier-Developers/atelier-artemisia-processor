@@ -18,6 +18,7 @@ from flipflop.d import D_FlipFlop
 from gate.and_gate import And
 from gate.input_gate import Input
 from gate.not_gate import Not
+from gate.one_gate import One
 from gate.or_gate import Or
 from gate.xor_gate import Xor
 from latch.d import D_Latch
@@ -57,17 +58,28 @@ def bitsToGates(bitString, inputs):
 def test1():
     clock = Signal()
     inputs = [Input(f"Input{i}") for i in range(32)]
-    reg1 = Register(clock, inputs, 32)
+    bitsToGates("10111011101110111011101110111011", inputs)
+
+    reg1 = Register(clock, None, 32)
+    and0 = And((reg1[0], One()))
+    reg1.set_input(inputs)
     outputs = []
-    for __ in range(10):
-        generated_bits = randomNBitGen(32)
-        bitsToGates(generated_bits, inputs)
-        for _ in range(1):
-            print(clock.output.output)
-            outputs = reg1.logic()
-            clock.pulse()
-        print("Generated Bits :" + generated_bits)
-        print("Register Bits : " + "".join(map(str, outputs)))
+
+    for _ in range(2):
+        reg1.logic()
+        clock.pulse()
+
+    and0.logic()
+    print(and0)
+    # for __ in range(10):
+    #     generated_bits = randomNBitGen(32)
+    #     bitsToGates(generated_bits, inputs)
+    #     for _ in range(1):
+    #         print(clock.output.output)
+    #         outputs = reg1.logic()
+    #         clock.pulse()
+    #     print("Generated Bits :" + generated_bits)
+    #     print("Register Bits : " + "".join(map(str, outputs)))
 
 
 def test_alu():
@@ -94,7 +106,7 @@ def test_alu():
 
 
 def test_reg_file():
-    n = 32
+    n = 256
     reg_width = 32
     size = int(log(n, 2))
     read_num1 = [Input(f"Input{i}") for i in range(size)]
@@ -268,10 +280,10 @@ def test_pipeline_reg():
 # test_right_shift()
 # test_left_shift()
 # test_sign_extend()
-# test_reg_file()
+test_reg_file()
 # test1()
 # test_alu()
-test_pipeline_reg()
+# test_pipeline_reg()
 # forward_unit_test()
 # test_control_unit()
 # test_branch_predictor()
