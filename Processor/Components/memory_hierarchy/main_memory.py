@@ -1,3 +1,5 @@
+from math import log
+
 from Components.memory_hierarchy.memory_bank import MemoryBank
 from itertools import chain
 
@@ -17,8 +19,10 @@ class MainMemory:
         self.build()
 
     def build(self):
-        self.output = [MemoryBank(self.clock, self.write_value[i * 8: (i + 1) * 8], self.read_address[:-2],
-                                  self.write_address[:-2], self.mem_write, self.mem_read, self.size,
+        self.output = [MemoryBank(self.clock, self.write_value[i * 8: (i + 1) * 8],
+                                  self.read_address[-int(log(self.size, 2)) - 2:-2],
+                                  self.write_address[-int(log(self.size, 2)) - 2:-2], self.mem_write, self.mem_read,
+                                  self.size,
                                   f"{self.name}_mem_bank_{i}") for i in range(4)]
 
     def logic(self, depend=None):
