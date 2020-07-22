@@ -59,7 +59,7 @@ class Pipeline:
         self.ex_mem = EX_MEM(self.clock, None)
         self.mem_wb = MEM_WB(self.clock, None)
         self.id_ex = ID_EX(self.clock, None)
-        self.if_id = IF_ID(self.clock, None, None)
+        self.if_id = IF_ID(self.clock, None)
 
         self.pc = PC(self.clock, None, )
 
@@ -103,7 +103,7 @@ class Pipeline:
         branch_comparator = Comparator((self.register_file_unit.outputs[0], self.register_file_unit.outputs[1]), 32)
         branch_and = And((branch_comparator, self.control_unit.output[8]))
         # todo careful about hazard detection output
-        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1, "id_ex_mux") for i in
+        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1, f"id_ex_mux_{i}") for i in
                      range(len(self.control_unit.output) - 2)]
 
         # todo WARNING input?

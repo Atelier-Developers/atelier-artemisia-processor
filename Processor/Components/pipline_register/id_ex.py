@@ -4,7 +4,7 @@ from flipflop.d import D_FlipFlop
 
 class ID_EX(Register):
 
-    def __init__(self, clock, inputs, name="IF_ID_Register"):
+    def __init__(self, clock, inputs, name="ID_EX_Register"):
         super().__init__(clock, inputs, 119, name)
         self.wb_control: list = []
         self.mem_control: list = []
