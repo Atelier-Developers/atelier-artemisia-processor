@@ -21,6 +21,8 @@ class Register:
         if self.inputs:
             for i in range(self.size):
                 self.outputs[i].set_input(self.inputs[i])
+        for i in range(self.size):
+            self.outputs[i].reset()
 
     def set_input(self, inputs):
         self.inputs = inputs

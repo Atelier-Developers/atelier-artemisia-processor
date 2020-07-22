@@ -50,7 +50,9 @@ class Pipeline:
         self.id_ex: ID_EX = None
         self.ex_mem: EX_MEM = None
         self.mem_wb: MEM_WB = None
-        self.clock = And((clock, load))
+        self.clock = And((clock, Not(load)))
+        self.mem_clock = And((clock, load))
+        self.pc_adder = None
         self.build()
 
     def build(self):
@@ -99,12 +101,15 @@ class Pipeline:
         branch_adder[31].set_cin(zero)
         for i in range(30, -1, -1):
             branch_adder[i].set_cin(branch_adder[i + 1].cout)
+        branch_adder = [x.sum for x in branch_adder]
 
         branch_comparator = Comparator((self.register_file_unit.outputs[0], self.register_file_unit.outputs[1]), 32)
         branch_and = And((branch_comparator, self.control_unit.output[8]))
         # todo careful about hazard detection output
-        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1, f"id_ex_mux_{i}") for i in
-                     range(len(self.control_unit.output) - 2)]
+        id_ex_mux = [
+            Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1, f"id_ex_mux_{i}") for
+            i in
+            range(len(self.control_unit.output) - 2)]
 
         # todo WARNING input?
         id_ex_input = inst[16:21] + inst[11:16] + inst[6:11] + self.sign_extend.output + \
@@ -163,7 +168,7 @@ class Pipeline:
 
         # Stage 4
 
-        self.data_cache = MainMemory(self.clock, self.ex_mem.get_alu_result(), self.ex_mem.get_alu_result(),
+        self.data_cache = MainMemory(self.mem_clock, self.ex_mem.get_alu_result(), self.ex_mem.get_alu_result(),
                                      self.ex_mem.get_second_alu_src_value(), self.ex_mem.get_mem_control()[1],
                                      self.ex_mem.get_mem_control()[0], 16, "Pipeline_Data_Cache")
 
@@ -179,12 +184,15 @@ class Pipeline:
         inst_address = self.pc.get_instruction_address()
         four = [zero for _ in range(29)] + [One()] + [zero for _ in range(2)]  # 4
 
-        pc_adder = [FullAdder((inst_address[i], four[i]), "pc_adder") for i in range(32)]
+        self.pc_adder = [FullAdder((inst_address[i], four[i]), f"pc_adder_{i}") for i in range(32)]
+        pc_adder = self.pc_adder
         pc_adder[31].set_cin(zero)
         for i in range(30, -1, -1):
             pc_adder[i].set_cin(pc_adder[i + 1].cout)
 
-        self.instruction_cache = MainMemory(self.clock, self.pc.get_instruction_address(),
+        pc_adder = [x.sum for x in pc_adder]
+
+        self.instruction_cache = MainMemory(self.mem_clock, self.pc.get_instruction_address(),
                                             self.write_instruction_address,
                                             self.write_instruction_value, self.load,
                                             Not(self.load, "not_load"), 16, "Pipeline_Instruction_Cache")
@@ -204,8 +212,10 @@ class Pipeline:
         self.if_id.set_clock(if_id_clock)
 
         # PC Fetching
-        mux_branch = [Mux_mxn((pc_adder[i], branch_adder[i]), (branch_and,), 1) for i in range(32)]
-        mux_jump = [Mux_mxn((mux_branch[i], jump_address[i]), (self.control_unit.output[9],), 1) for i in range(32)]
+        mux_branch = [Mux_mxn((pc_adder[i], branch_adder[i]), (branch_and,), 1, f"mux_branch_{i}") for i in range(32)]
+        mux_jump = [Mux_mxn((mux_branch[i], jump_address[i]), (self.control_unit.output[9],), 1, f"mux_jump_{i}") for i
+                    in
+                    range(32)]
 
         pc_input = mux_jump
         self.pc.set_input(pc_input)
@@ -241,7 +251,11 @@ class Pipeline:
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
-        print("hello")
+        load_input.output = 0
+        while True:
+            for _ in range(2):
+                pipeline.logic()
+                clock.pulse()
 
     def set_pc(self, value):
         pass
