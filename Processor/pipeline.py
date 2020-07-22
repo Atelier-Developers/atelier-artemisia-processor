@@ -184,7 +184,6 @@ class Pipeline:
         for i in range(30, -1, -1):
             pc_adder[i].set_cin(pc_adder[i + 1].cout)
 
-        # TODO set write address and value to None or Zero
         self.instruction_cache = MainMemory(self.clock, self.pc.get_instruction_address(),
                                             self.write_instruction_address,
                                             self.write_instruction_value, self.load,
@@ -236,7 +235,7 @@ class Pipeline:
         clock = Signal()
         pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
         for i in range(len(instructions)):
-            address = bin(i)[2:].zfill(32)
+            address = bin(i * 4)[2:].zfill(32)
             bits_to_gates(address, write_address_inp)
             bits_to_gates(instructions[i], write_val_inp)
             for _ in range(2):
