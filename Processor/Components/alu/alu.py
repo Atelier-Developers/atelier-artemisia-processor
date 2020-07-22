@@ -25,7 +25,7 @@ class ALU:
     def build(self):
 
         self.alu_unit_output = [
-            ALUUnit(self.a[i], Xor((self.b[i], self.cin)), None, self.selectors[2:4], f"{self.name}_AluUnit_{i}") for
+            ALUUnit(self.a[i], Xor((self.b[i], self.cin), f"xor_cin_b_{i}"), None, self.selectors[2:4], f"{self.name}_AluUnit_{i}") for
             i in
             range(self.n)]
         self.alu_unit_output[self.n - 1].set_cin(self.cin)

@@ -33,3 +33,6 @@ class MainMemory:
 
     def get_output(self):
         return [list(chain.from_iterable(bank.get_output())) for bank in self.output]
+
+    def __repr__(self):
+        return f"{self.name}: {self.get_output()}"

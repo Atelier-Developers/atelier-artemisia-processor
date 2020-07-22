@@ -66,7 +66,7 @@ class Pipeline:
         # Stage 5
 
         mem_wb_mux = [Mux_mxn((self.mem_wb.get_alu_result()[i], self.mem_wb.get_data_memory()[i]),
-                              (self.mem_wb.get_wb_control()[0],), 1) for i in range(32)]
+                              (self.mem_wb.get_wb_control()[0],), 1, "mem_wb_mux") for i in range(32)]
 
         # Stage 2
 
@@ -100,12 +100,10 @@ class Pipeline:
         for i in range(30, -1, -1):
             branch_adder[i].set_cin(branch_adder[i + 1].cout)
 
-        branch_comp_input1 = [Input() for _ in range(32)]
-        branch_comp_input2 = [Input() for _ in range(32)]
         branch_comparator = Comparator((self.register_file_unit.outputs[0], self.register_file_unit.outputs[1]), 32)
         branch_and = And((branch_comparator, self.control_unit.output[8]))
         # todo careful about hazard detection output
-        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1) for i in
+        id_ex_mux = [Mux_mxn((self.control_unit.output[i], zero), (self.hazard_detection_unit.output,), 1, "id_ex_mux") for i in
                      range(len(self.control_unit.output) - 2)]
 
         # todo WARNING input?
@@ -131,10 +129,10 @@ class Pipeline:
 
         mux_forwarding_a = [
             Mux_mxn((self.id_ex.get_read_val1()[i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
-                    self.forwarding_unit.get_output()[0], 2) for i in range(32)]
+                    self.forwarding_unit.outputs[0], 2, "mux_forwarding_a") for i in range(32)]
         mux_forwarding_b = [
             Mux_mxn((self.id_ex.get_read_val2()[i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
-                    self.forwarding_unit.get_output()[1], 2) for i in range(32)]
+                    self.forwarding_unit.outputs[1], 2, "mux_forwarding_b") for i in range(32)]
 
         mux_alu_src = [
             Mux_mxn((mux_forwarding_b[i], self.id_ex.get_immediate()[i]),
@@ -181,7 +179,7 @@ class Pipeline:
         inst_address = self.pc.get_instruction_address()
         four = [zero for _ in range(29)] + [One()] + [zero for _ in range(2)]  # 4
 
-        pc_adder = [FullAdder((inst_address[i], four[i]), None) for i in range(32)]
+        pc_adder = [FullAdder((inst_address[i], four[i]), "pc_adder") for i in range(32)]
         pc_adder[31].set_cin(zero)
         for i in range(30, -1, -1):
             pc_adder[i].set_cin(pc_adder[i + 1].cout)
@@ -190,9 +188,9 @@ class Pipeline:
         self.instruction_cache = MainMemory(self.clock, self.pc.get_instruction_address(),
                                             self.write_instruction_address,
                                             self.write_instruction_value, self.load,
-                                            Not(self.load), 16, "Pipeline_Instruction_Cache")
+                                            Not(self.load, "not_load"), 16, "Pipeline_Instruction_Cache")
 
-        if_flush = branch_and.output
+        if_flush = branch_and
         if_id_pc_write = self.hazard_detection_unit.output
 
         inst_cache_output = []
@@ -244,6 +242,7 @@ class Pipeline:
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
+        print("hello")
 
     def set_pc(self, value):
         pass

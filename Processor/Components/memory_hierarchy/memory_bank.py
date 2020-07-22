@@ -31,7 +31,7 @@ class MemoryBank:
             Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)], self.read_address, int(log(self.size, 2)),
                     f"{self.name}_mux_{i}_read")
             for i in range(8)]
-        self.output = [And(self.mem_read, muxs[i].output) for i in range(8)]
+        self.output = [And((self.mem_read, muxs[i].output), f"{self.name}_{i}_and_read") for i in range(8)]
 
     def logic(self, depend=None):
         if depend is None:
@@ -48,3 +48,6 @@ class MemoryBank:
     def get_output(self):
         # ???????
         return [block.output for block in self.output]
+
+    def __repr__(self):
+        return f"{self.name}: {self.get_output()}"
