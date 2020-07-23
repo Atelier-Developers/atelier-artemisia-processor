@@ -4,6 +4,8 @@ from Components.memory_hierarchy.memory_cell import MemoryCell
 from comparator.comparator import Comparator
 from decoder.decoder_mxn import Decoder_nxm
 from gate.and_gate import And
+from gate.one_gate import One
+from gate.or_gate import Or
 from multiplexer.mux_mxn import Mux_mxn
 
 
@@ -34,12 +36,14 @@ class MemoryBank:
             range(self.size)]
         self.muxs = [
             Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)],
-                    self.read_address[-int(log(self.size, 2)) - 2:-2], int(log(self.size, 2)),
-                    f"{self.name}_mux_{i}_read")
+                    self.read_address, int(log(self.size, 2)),
+                    True,
+                    f"{self.name}_mux_{i}_read", )
             for i in range(8)]
-        remaining_bits = self.read_address[:-int(log(self.size, 2)) - 2]
-        compare = Comparator((remaining_bits, remaining_bits), len(remaining_bits))
-        self.output = [And((And((self.mem_read, self.muxs[i].output)), compare), f"{self.name}_{i}_and_read") for i in
+        # remaining_bits = self.read_address[:-int(log(self.size, 2)) - 2]
+        # compare = Comparator((remaining_bits, remaining_bits), len(remaining_bits))
+        # compare_2 = Comparator((self.read_address[-2:], self.read_address[-2:]), len(self.read_address[-2:]))
+        self.output = [And((self.mem_read, self.muxs[i].output)) for i in
                        range(8)]
 
     def logic(self, depend=None):

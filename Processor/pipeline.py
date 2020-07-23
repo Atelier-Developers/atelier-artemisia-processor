@@ -188,7 +188,7 @@ class Pipeline:
         inst_address = self.pc.get_instruction_address()
         four = [zero for _ in range(29)] + [One()] + [zero for _ in range(2)]  # 4
 
-        self.pc_adder = [FullAdder((inst_address[i], four[i]), f"pc_adder_{i}") for i in range(32)]
+        self.pc_adder = [FullAdder((inst_address[i], four[i]), None, f"pc_adder_{i}") for i in range(32)]
         pc_adder = self.pc_adder
         pc_adder[31].set_cin(zero)
         for i in range(30, -1, -1):
