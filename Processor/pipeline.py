@@ -52,10 +52,11 @@ class Pipeline:
         self.id_ex: ID_EX = None
         self.ex_mem: EX_MEM = None
         self.mem_wb: MEM_WB = None
-        self.clock = And((clock, Not(load)))
+        self.clock = And((Not(clock), Not(load)))
         self.mem_clock = And((clock, load))
         self.pc_adder = None
         self.pc_clock = None
+        self.clock_register = And((clock, Not(load)))
         self.build()
 
     def build(self):
@@ -208,7 +209,7 @@ class Pipeline:
             inst_cache_output += self.instruction_cache.output[i].output
 
         if_id_inputs = inst_cache_output + pc_adder + [if_flush]
-        if_id_clock = And((Not(if_id_pc_write), self.clock))
+        if_id_clock = And((if_id_pc_write, self.clock_register))  # ????????????????????????????????????
 
         self.if_id.set_input(if_id_inputs)
 
@@ -247,6 +248,7 @@ class Pipeline:
         write_val_inp = [Input() for _ in range(32)]
         write_address_inp = [Input() for _ in range(32)]
         clock = Signal()
+        clock.pulse()
         pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
         for i in range(len(instructions)):
             address = bin(i * 4)[2:].zfill(32)
