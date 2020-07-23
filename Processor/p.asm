@@ -1,3 +1,3 @@
-add $t0, $t1, $t2
-lw $t3, 20($t4)
-sll $t1, $t5, $t6
+addi $t0, $zero, 100
+addi $t2, $t1, 200
+addi $t3, $zero, 100

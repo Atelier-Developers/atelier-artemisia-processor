@@ -6,7 +6,7 @@ j_format = {
 i_format = {
     'beq': "000100",
     'bne': None,
-    'addi': None,
+    'addi': "001000",
     'addiu': None,
     'andi': None,
     'ori': None,

@@ -62,9 +62,9 @@ class Pipeline:
     def build(self):
         # Initializing Pipeline registers
 
-        self.ex_mem = EX_MEM(self.clock, None)
-        self.mem_wb = MEM_WB(self.clock, None)
-        self.id_ex = ID_EX(self.clock, None)
+        self.ex_mem = EX_MEM(self.clock_register, None)
+        self.mem_wb = MEM_WB(self.clock_register, None)
+        self.id_ex = ID_EX(self.clock_register, None)
         self.if_id = IF_ID(self.clock, None)
 
         self.pc = PC(self.clock, None, )
@@ -88,8 +88,11 @@ class Pipeline:
             "HazardDetectionUnit"
         )
 
+
+        temp = self.if_id.get_instruction()[0:6][::-1]
+
         self.control_unit = ControlUnit(
-            self.if_id.get_instruction()[0:6],
+            temp,
             "ControlUnit"
         )
 
@@ -259,7 +262,6 @@ class Pipeline:
                 clock.pulse()
         load_input.output = 0
         while True:
-            print("fkajdf")
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
