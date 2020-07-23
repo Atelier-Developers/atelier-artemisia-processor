@@ -200,7 +200,7 @@ class Pipeline:
                                             Not(self.load, "not_load"), 16, "Pipeline_Instruction_Cache")
 
         if_flush = branch_and
-        if_id_pc_write = self.hazard_detection_unit.output
+        if_id_pc_write = Not(self.hazard_detection_unit.output)
 
         inst_cache_output = []
         for i in range(4):

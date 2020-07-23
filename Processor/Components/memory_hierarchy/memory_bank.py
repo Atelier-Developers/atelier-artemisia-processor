@@ -25,11 +25,13 @@ class MemoryBank:
     def build(self):
         self.dec = Decoder_nxm(self.write_address[-int(log(self.size, 2)) - 2:-2], int(log(self.size, 2)))
         self.mem_cells = [
-            MemoryCell(And((self.clock, self.dec.outputs[i], self.mem_write)), self.inputs, f"{self.name}_{i}_memory_cell")
+            MemoryCell(And((self.clock, self.dec.outputs[i], self.mem_write)), self.inputs,
+                       f"{self.name}_{i}_memory_cell")
             for i in
             range(self.size)]
         muxs = [
-            Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)], self.read_address, int(log(self.size, 2)),
+            Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)],
+                    self.read_address[-int(log(self.size, 2)) - 2:-2], int(log(self.size, 2)),
                     f"{self.name}_mux_{i}_read")
             for i in range(8)]
         self.output = [And((self.mem_read, muxs[i].output), f"{self.name}_{i}_and_read") for i in range(8)]
