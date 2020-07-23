@@ -37,8 +37,8 @@ class MemoryBank:
         self.muxs = [
             Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)],
                     self.read_address, int(log(self.size, 2)),
-                    True,
-                    f"{self.name}_mux_{i}_read", )
+                    f"{self.name}_mux_{i}_read",
+                    True)
             for i in range(8)]
         # remaining_bits = self.read_address[:-int(log(self.size, 2)) - 2]
         # compare = Comparator((remaining_bits, remaining_bits), len(remaining_bits))
