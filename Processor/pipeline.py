@@ -259,6 +259,7 @@ class Pipeline:
                 clock.pulse()
         load_input.output = 0
         while True:
+            print("fkajdf")
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
