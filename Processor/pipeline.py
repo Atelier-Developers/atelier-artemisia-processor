@@ -55,6 +55,7 @@ class Pipeline:
         self.clock = And((clock, Not(load)))
         self.mem_clock = And((clock, load))
         self.pc_adder = None
+        self.pc_clock = None
         self.build()
 
     def build(self):
@@ -222,8 +223,8 @@ class Pipeline:
         pc_input = mux_jump
         self.pc.set_input(pc_input)
 
-        pc_clock = And((self.clock, if_id_pc_write))
-        self.pc.set_clock(pc_clock)
+        self.pc_clock = And((self.clock, if_id_pc_write))
+        self.pc.set_clock(self.pc_clock)
 
     def logic(self, depend=None):
         if depend is None:
@@ -231,6 +232,7 @@ class Pipeline:
         if self in depend:
             return
         depend.append(self)
+        # self.pc.logic(depend)
         self.mem_wb.logic(depend)
 
     # def load_instructions_to_memory(self, file_name):
