@@ -20,8 +20,8 @@ class MainMemory:
 
     def build(self):
         self.output = [MemoryBank(self.clock, self.write_value[i * 8: (i + 1) * 8],
-                                  self.read_address[-int(log(self.size, 2)) - 2:-2],
-                                  self.write_address[-int(log(self.size, 2)) - 2:-2], self.mem_write, self.mem_read,
+                                  self.read_address,
+                                  self.write_address, self.mem_write, self.mem_read,
                                   self.size,
                                   f"{self.name}_mem_bank_{i}") for i in range(4)]
 

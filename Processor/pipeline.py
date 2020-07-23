@@ -1,3 +1,5 @@
+from math import log
+
 from Components.alu.alu import ALU
 from Components.alu.left_shift import LeftSift
 from Components.control_units.control_unit import ControlUnit

@@ -23,7 +23,7 @@ class MemoryBank:
         self.build()
 
     def build(self):
-        self.dec = Decoder_nxm(self.write_address, int(log(self.size, 2)))
+        self.dec = Decoder_nxm(self.write_address[-int(log(self.size, 2)) - 2:-2], int(log(self.size, 2)))
         self.mem_cells = [
             MemoryCell(And((self.clock, self.dec.outputs[i], self.mem_write)), self.inputs, f"{self.name}_{i}_memory_cell")
             for i in
