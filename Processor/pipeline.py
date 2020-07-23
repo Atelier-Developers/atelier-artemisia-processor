@@ -57,6 +57,7 @@ class Pipeline:
         self.pc_adder = None
         self.pc_clock = None
         self.clock_register = And((clock, Not(load)))
+        self.clock = self.clock_register
         self.build()
 
     def build(self):
@@ -97,7 +98,7 @@ class Pipeline:
         )
 
         # write value = mux stage 5,
-        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:17], self.mem_wb.get_rd(), mem_wb_mux),
+        self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:16], self.mem_wb.get_rd(), mem_wb_mux),
                                                    self.mem_wb.get_wb_control()[1], self.clock, 32, 32,
                                                    "Pipeline_Register_File")
         self.sign_extend = SignExtend16To32(inst[16:32])
@@ -262,6 +263,7 @@ class Pipeline:
                 clock.pulse()
         load_input.output = 0
         while True:
+            print("ladkjf")
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()

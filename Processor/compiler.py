@@ -76,15 +76,15 @@ def compile_asm(lines, registers):
         b = []
         if ins[0] in i_format:
             b.append(i_format[ins[0]])
-            b.append(registers[ins[1]])
             im, reg = (ins[2], ins[3]) if ins[0] in ['lw', 'sw'] else (ins[3], ins[2])
             b.append(registers[reg])
+            b.append(registers[ins[1]])
             b.append(bin(int(im))[2:].zfill(16))
         elif ins[0] in r_format:
             b.append("000000")
-            b.append(registers[ins[1]])
-            b.append(registers[ins[2]])
-            b.append(registers[ins[3]])
+            b.append(registers[ins[2]])   # RS
+            b.append(registers[ins[3]])   # RT
+            b.append(registers[ins[1]])   # RD
             b.append("00000")
             b.append(r_format[ins[0]])
         elif ins[0] in j_format:
