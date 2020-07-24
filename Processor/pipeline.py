@@ -21,6 +21,7 @@ from gate.and_gate import And
 from gate.input_gate import Input
 from gate.not_gate import Not
 from gate.one_gate import One
+from gate.or_gate import Or
 from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
 from signals.signal import Signal
@@ -212,7 +213,7 @@ class Pipeline:
                                             self.write_instruction_value, self.load,
                                             Not(self.load, "not_load"), 16, "Pipeline_Instruction_Cache")
 
-        if_flush = branch_and
+        if_flush = Or((branch_and, self.control_unit.output[9]))
         if_id_pc_write = Not(self.hazard_detection_unit.output)
 
         inst_cache_output = []
@@ -247,9 +248,6 @@ class Pipeline:
         # self.pc.logic(depend)
         self.mem_wb.logic(depend)
 
-    # def load_instructions_to_memory(self, file_name):
-    #     instructions = compiler(file_name)
-    #     for inst in instructions:
 
     @staticmethod
     def run(file_name):
