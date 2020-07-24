@@ -167,7 +167,7 @@ class Pipeline:
         )
 
         mux_reg_dst = [
-            Mux_mxn((self.id_ex.get_rd()[i], self.id_ex.get_rt()[i]),
+            Mux_mxn((self.id_ex.get_rt()[i], self.id_ex.get_rd()[i]),
                     (self.id_ex.get_ex_control()[0],), 1) for i in range(5)]
 
         ex_mem_inputs = mux_reg_dst + mux_alu_src + self.alu.output + self.id_ex.get_mem_control() \
