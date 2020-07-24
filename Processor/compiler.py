@@ -6,7 +6,7 @@ j_format = {
 i_format = {
     'beq': "000100",
     'bne': None,
-    'addi': None,
+    'addi': "001000",
     'addiu': None,
     'andi': None,
     'ori': None,
@@ -56,7 +56,7 @@ def reg_init():
             if key == "$zero":
                 registers[f"{key}"] = b
             elif key == "$tt":
-                registers[f"$t{i}"] = b
+                registers[f"$t{i + 8}"] = b
             else:
                 registers[f"{key}{i}"] = b
             n += 1
@@ -83,17 +83,24 @@ def compile_asm(lines, registers):
         b = []
         if ins[0] in i_format:
             b.append(i_format[ins[0]])
-            b.append(registers[ins[1]])
             im, reg = (ins[2], ins[3]) if ins[0] in ['lw', 'sw'] else (ins[3], ins[2])
             b.append(registers[reg])
+            b.append(registers[ins[1]])
             b.append(bin(int(im))[2:].zfill(16))
         elif ins[0] in r_format:
-            b.append("000000")
-            b.append(registers[ins[1]])
-            b.append(registers[ins[2]])
-            b.append(registers[ins[3]])
-            b.append("00000")
-            b.append(r_format[ins[0]])
+            b.append("000000")   # OPCODE
+            if ins[0] == "sll" or ins[0] == "srl":
+                b.append(registers[ins[2]])   # RT
+                b.append("00000")   # RS
+                b.append(registers[ins[1]])   # RD
+                shamt = bin(int(ins[3]))[2:].zfill(5)
+                b.append(shamt)      # SHAMT
+            else:
+                b.append(registers[ins[2]])  # RS
+                b.append(registers[ins[3]])  # RT
+                b.append(registers[ins[1]])  # RD
+                b.append("00000")     # SHAMT
+            b.append(r_format[ins[0]])    # FUNCT
         elif ins[0] in j_format:
             b.append(j_format[ins[0]])
             if ins[1].isnumeric():

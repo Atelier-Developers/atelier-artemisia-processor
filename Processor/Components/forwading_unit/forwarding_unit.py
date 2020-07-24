@@ -56,8 +56,8 @@ class ForwardingUnit:
         )
 
         self.outputs = (
-            (forward_a_01, forward_a_10),
-            (forward_b_01, forward_b_10)
+            (forward_a_10, forward_a_01),
+            (forward_b_10, forward_b_01)
         )
 
     def logic(self, depend=[]):

@@ -21,6 +21,8 @@ class PC(Register):
             return self.outputs
         depend.append(self)
         for flip_flop in self.outputs:
+            # if flip_flop.name == "PC_Register_Latch_29":
+            #     print("hiiiiiiiiielfalkfjlaskjdflaskjflawkhg ;oihqwigh a;")
             flip_flop.logic(depend)
         outputs = self.get_output()
         return outputs

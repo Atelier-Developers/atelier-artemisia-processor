@@ -25,3 +25,6 @@ class MemoryCell:
 
     def get_output(self):
         return [bit.q() for bit in self.output]
+
+    def __repr__(self):
+        return f"{self.name}: {self.get_output()}"

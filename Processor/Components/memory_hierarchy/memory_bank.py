@@ -1,8 +1,11 @@
 from math import log
 
 from Components.memory_hierarchy.memory_cell import MemoryCell
+from comparator.comparator import Comparator
 from decoder.decoder_mxn import Decoder_nxm
 from gate.and_gate import And
+from gate.one_gate import One
+from gate.or_gate import Or
 from multiplexer.mux_mxn import Mux_mxn
 
 
@@ -18,20 +21,30 @@ class MemoryBank:
         self.mem_write = mem_write
         self.mem_read = mem_read
         self.mem_cells = None
+        self.muxs = None
         self.output = None
+        self.other_output = None
+        self.dec = None
         self.build()
 
     def build(self):
-        dec = Decoder_nxm(self.write_address, int(log(self.size, 2)))
+        self.dec = Decoder_nxm(self.write_address[-int(log(self.size, 2)) - 2:-2], int(log(self.size, 2)))
         self.mem_cells = [
-            MemoryCell(And((self.clock, dec.outputs[i], self.mem_write)), self.inputs, f"{self.name}_{i}_memory_cell")
+            MemoryCell(And((self.clock, self.dec.outputs[i], self.mem_write)), self.inputs,
+                       f"{self.name}_{i}_memory_cell")
             for i in
             range(self.size)]
-        muxs = [
-            Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)], self.read_address, int(log(self.size, 2)),
-                    f"{self.name}_mux_{i}_read")
+        self.muxs = [
+            Mux_mxn([self.mem_cells[j].output[i] for j in range(self.size)],
+                    self.read_address, int(log(self.size, 2)),
+                    f"{self.name}_mux_{i}_read",
+                    True)
             for i in range(8)]
-        self.output = [And(self.mem_read, muxs[i].output) for i in range(8)]
+        # remaining_bits = self.read_address[:-int(log(self.size, 2)) - 2]
+        # compare = Comparator((remaining_bits, remaining_bits), len(remaining_bits))
+        # compare_2 = Comparator((self.read_address[-2:], self.read_address[-2:]), len(self.read_address[-2:]))
+        self.output = [And((self.mem_read, self.muxs[i].output)) for i in
+                       range(8)]
 
     def logic(self, depend=None):
         if depend is None:
@@ -48,3 +61,6 @@ class MemoryBank:
     def get_output(self):
         # ???????
         return [block.output for block in self.output]
+
+    def __repr__(self):
+        return f"{self.name}: {self.get_output()}"

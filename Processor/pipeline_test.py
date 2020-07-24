@@ -2,7 +2,7 @@ from compiler import compiler
 from pipeline import Pipeline
 import sys
 
-sys.setrecursionlimit(1000)  # default is 1000
+sys.setrecursionlimit(5000)  # default is 1000
 
 
 def test_compiler():
