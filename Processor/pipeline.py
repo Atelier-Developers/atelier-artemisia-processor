@@ -4,6 +4,7 @@ from Components.alu.alu import ALU
 from Components.alu.left_shift import LeftSift
 from Components.control_units.control_unit import ControlUnit
 from Components.control_units.alu_control_unit import ALUControlUnit
+from Components.forwading_unit.branch_forwarding_unit import BranchForwardingUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
 from Components.memory_hierarchy.main_memory import MainMemory
@@ -111,8 +112,20 @@ class Pipeline:
         for i in range(30, -1, -1):
             branch_adder[i].set_cin(branch_adder[i + 1].cout)
         branch_adder = [x.sum for x in branch_adder]
+        branch_forwarding_unit = BranchForwardingUnit(self.control_unit.output[8], self.ex_mem.get_rd(),
+                                                      self.mem_wb.get_rd(),
+                                                      self.ex_mem.get_wb_control()[1],
+                                                      self.mem_wb.get_wb_control()[1],
+                                                      inst[6:11], inst[11:16], )
 
-        branch_comparator = Comparator((self.register_file_unit.outputs[0], self.register_file_unit.outputs[1]), 32)
+        mux_branch_forwarding_a = [
+            Mux_mxn((self.register_file_unit.outputs[0][i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
+                    branch_forwarding_unit.outputs[0], 2, "branch_forwarding_a") for i in range(32)]
+        mux_branch_forwarding_b = [
+            Mux_mxn((self.register_file_unit.outputs[1][i], mem_wb_mux[i], self.ex_mem.get_alu_result()[i], zero),
+                    branch_forwarding_unit.outputs[1], 2, "branch_forwarding_b") for i in range(32)]
+
+        branch_comparator = Comparator((mux_branch_forwarding_a, mux_branch_forwarding_b), 32)
         branch_and = And((branch_comparator, self.control_unit.output[8]))
         # todo careful about hazard detection output
         id_ex_mux = [
@@ -247,7 +260,6 @@ class Pipeline:
         depend.append(self)
         # self.pc.logic(depend)
         self.mem_wb.logic(depend)
-
 
     @staticmethod
     def run(file_name):

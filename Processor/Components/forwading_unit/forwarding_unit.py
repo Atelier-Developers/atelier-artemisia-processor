@@ -60,7 +60,9 @@ class ForwardingUnit:
             (forward_b_10, forward_b_01)
         )
 
-    def logic(self, depend=[]):
+    def logic(self, depend=None):
+        if depend is None:
+            depend = []
         if self in depend:
             return self.outputs
         for i in range(2):
