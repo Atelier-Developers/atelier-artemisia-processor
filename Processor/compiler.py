@@ -63,25 +63,44 @@ def reg_init():
     return registers
 
 
+def check_dependency(ins, regs):
+    if ins[1] in regs:
+        return True
+    return False
+
+
 def compile_asm(lines, registers):
+    # for beq, if R -> NOP, if LW -> NOP*2
     instructions = []
     labels = {}
-    for i, line in enumerate(lines):
+    add = 0
+    for line in lines:
         if line[-1] == ':':
-            labels[line[:-1]] = i - len(labels)
+            labels[line[:-1]] = add
             continue
         ins = re.findall("^[a-z]+", line)
         if ins[0] != 'j':
             regs = re.findall("\$[a-z]+[0-9]|[0-9]+|\$zero", line)
         else:
             regs = [line.split(" ")[1]]
+        if ins[0] == 'beq' and check_dependency(instructions[-1], regs):
+            if instructions[-1][0] == 'lw':
+                instructions.append(['nop'])
+                instructions.append(['nop'])
+                add += 2
+            elif r_format.get(instructions[-1][0]):
+                instructions.append(['nop'])
+                add += 1
+        add += 1
         instructions.append(ins + regs)
 
     binary = []
 
     for ins in instructions:
         b = []
-        if ins[0] in i_format:
+        if ins[0] == 'nop':
+            b.append('0' * 32)
+        elif ins[0] in i_format:
             b.append(i_format[ins[0]])
             im, reg = (ins[2], ins[3]) if ins[0] in ['lw', 'sw'] else (ins[3], ins[2])
             b.append(registers[reg])
