@@ -65,9 +65,16 @@ def reg_init():
 
 def compile_asm(lines, registers):
     instructions = []
-    for line in lines:
+    labels = {}
+    for i, line in enumerate(lines):
+        if line[-1] == ':':
+            labels[line[:-1]] = i
+            continue
         ins = re.findall("^[a-z]+", line)
-        regs = re.findall("\$[a-z]+[0-9]|[0-9]+|\$zero", line)
+        if ins[0] !=  'j':
+            regs = re.findall("\$[a-z]+[0-9]|[0-9]+|\$zero", line)
+        else:
+            regs = [line.split(" ")[1]]
         instructions.append(ins + regs)
 
     binary = []
@@ -89,7 +96,10 @@ def compile_asm(lines, registers):
             b.append(r_format[ins[0]])
         elif ins[0] in j_format:
             b.append(j_format[ins[0]])
-            b.append(bin(int(ins[1]))[2:].zfill(26))
+            if ins[1].isnumeric():
+                b.append(bin(int(ins[1]))[2:].zfill(26))
+            else:
+                b.append(bin(labels[ins[1]])[2:].zfill(26))
         binary.append("".join(b))
 
     return binary
@@ -103,4 +113,4 @@ def compiler(file_name):
     return compile_asm(lines, registers)
 
 
-print(compiler("p.asm"))
+print("\n".join(compiler("p.asm")))
