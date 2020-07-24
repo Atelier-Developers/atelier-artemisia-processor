@@ -68,10 +68,10 @@ def compile_asm(lines, registers):
     labels = {}
     for i, line in enumerate(lines):
         if line[-1] == ':':
-            labels[line[:-1]] = i
+            labels[line[:-1]] = i - len(labels)
             continue
         ins = re.findall("^[a-z]+", line)
-        if ins[0] !=  'j':
+        if ins[0] != 'j':
             regs = re.findall("\$[a-z]+[0-9]|[0-9]+|\$zero", line)
         else:
             regs = [line.split(" ")[1]]
@@ -88,19 +88,19 @@ def compile_asm(lines, registers):
             b.append(registers[ins[1]])
             b.append(bin(int(im))[2:].zfill(16))
         elif ins[0] in r_format:
-            b.append("000000")   # OPCODE
+            b.append("000000")  # OPCODE
             if ins[0] == "sll" or ins[0] == "srl":
-                b.append(registers[ins[2]])   # RT
-                b.append("00000")   # RS
-                b.append(registers[ins[1]])   # RD
+                b.append(registers[ins[2]])  # RT
+                b.append("00000")  # RS
+                b.append(registers[ins[1]])  # RD
                 shamt = bin(int(ins[3]))[2:].zfill(5)
-                b.append(shamt)      # SHAMT
+                b.append(shamt)  # SHAMT
             else:
                 b.append(registers[ins[2]])  # RS
                 b.append(registers[ins[3]])  # RT
                 b.append(registers[ins[1]])  # RD
-                b.append("00000")     # SHAMT
-            b.append(r_format[ins[0]])    # FUNCT
+                b.append("00000")  # SHAMT
+            b.append(r_format[ins[0]])  # FUNCT
         elif ins[0] in j_format:
             b.append(j_format[ins[0]])
             if ins[1].isnumeric():
