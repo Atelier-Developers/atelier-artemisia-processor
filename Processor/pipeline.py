@@ -170,13 +170,14 @@ class Pipeline:
             Mux_mxn((self.id_ex.get_rt()[i], self.id_ex.get_rd()[i]),
                     (self.id_ex.get_ex_control()[0],), 1) for i in range(5)]
 
-        ex_mem_inputs = mux_reg_dst + mux_alu_src + self.alu.output + self.id_ex.get_mem_control() \
+        ex_mem_inputs = mux_reg_dst + mux_forwarding_b + self.alu.output + self.id_ex.get_mem_control() \
                         + self.id_ex.get_wb_control()
         self.ex_mem.set_input(ex_mem_inputs)
 
         # Stage 4
 
-        self.data_cache = MainMemory(self.mem_clock, self.ex_mem.get_alu_result(), self.ex_mem.get_alu_result(),
+        data_cache_address = self.ex_mem.get_alu_result()[2:] + [zero, zero]
+        self.data_cache = MainMemory(self.clock_register, data_cache_address, data_cache_address,
                                      self.ex_mem.get_second_alu_src_value(), self.ex_mem.get_mem_control()[1],
                                      self.ex_mem.get_mem_control()[0], 16, "Pipeline_Data_Cache")
 

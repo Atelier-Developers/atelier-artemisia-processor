@@ -1,3 +1,4 @@
-addi $a1, $zero, 21
-sll $t1, $a1, 2
-add $t1, $a1, $t1
+addi $t2, $zero, 10
+sw $t2, 0($t2)
+lw $t3, 0($t2)
+slt $t0, $t4, $t3
