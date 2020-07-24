@@ -56,7 +56,7 @@ def reg_init():
             if key == "$zero":
                 registers[f"{key}"] = b
             elif key == "$tt":
-                registers[f"$t{i}"] = b
+                registers[f"$t{i + 8}"] = b
             else:
                 registers[f"{key}{i}"] = b
             n += 1
