@@ -8,7 +8,7 @@ from math import log
 
 class RegisterFileUnit:
 
-    def __init__(self, inputs, enable, clock, n, reg_width, name="RegisterFileUnit"):
+    def __init__(self, inputs, enable, clock, n, reg_width, register_clock, name="RegisterFileUnit"):
         self.inputs: tuple = inputs  # All inputs should be of type Input
         self.write_reg: Input = enable
         self.clock = clock
@@ -21,6 +21,7 @@ class RegisterFileUnit:
         self.n = n  # Number of Registers
         self.write_num_reg = None
         self.reg_width = reg_width
+        self.register_clock = register_clock
         self.build()
 
     def __repr__(self):
@@ -29,8 +30,9 @@ class RegisterFileUnit:
     def build(self):
         # TODO buffer enable
         read_number1, read_number2, write_number1, write_value1 = self.inputs
-        self.write_num_reg = Register(self.clock, write_number1, int(log(self.n, 2)))
-        self.dec1 = Decoder_nxm(self.write_num_reg.outputs, int(log(self.n, 2)))
+        # self.write_num_reg = Register(self.register_clock, write_number1, int(log(self.n, 2)))
+        self.write_num_reg = write_number1
+        self.dec1 = Decoder_nxm(self.write_num_reg, int(log(self.n, 2)))
         self.registers = []
         app = self.registers.append
         for i in range(self.n):

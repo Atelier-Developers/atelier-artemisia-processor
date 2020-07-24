@@ -89,7 +89,6 @@ class Pipeline:
             "HazardDetectionUnit"
         )
 
-
         temp = self.if_id.get_instruction()[0:6][::-1]
 
         self.control_unit = ControlUnit(
@@ -100,6 +99,7 @@ class Pipeline:
         # write value = mux stage 5,
         self.register_file_unit = RegisterFileUnit((inst[6:11], inst[11:16], self.mem_wb.get_rd(), mem_wb_mux),
                                                    self.mem_wb.get_wb_control()[1], self.clock, 32, 32,
+                                                   self.clock_register,
                                                    "Pipeline_Register_File")
         self.sign_extend = SignExtend16To32(inst[16:32])
         shift_sign_extend = LeftSift(self.sign_extend.output, [Zero(), Zero(), Zero(), One(), Zero()], 32)
