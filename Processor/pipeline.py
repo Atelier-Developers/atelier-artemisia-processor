@@ -153,7 +153,7 @@ class Pipeline:
 
         self.alu_control_unit = ALUControlUnit(
             self.id_ex.get_ex_control()[2:4],
-            self.id_ex.get_funct(),
+            self.id_ex.get_funct()[::-1],
             "ALU_ControlUnit"
         )
 
@@ -161,7 +161,7 @@ class Pipeline:
             mux_forwarding_a,
             mux_alu_src,
             self.alu_control_unit.output[0],
-            self.alu_control_unit.output[1:],
+            self.alu_control_unit.output[1:][::-1],
             self.id_ex.get_immediate()[21:26],
             "ALU"
         )

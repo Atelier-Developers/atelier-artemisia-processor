@@ -83,8 +83,8 @@ def compile_asm(lines, registers):
         elif ins[0] in r_format:
             b.append("000000")   # OPCODE
             if ins[0] == "sll" or ins[0] == "srl":
-                b.append("00000")   # RS
                 b.append(registers[ins[2]])   # RT
+                b.append("00000")   # RS
                 b.append(registers[ins[1]])   # RD
                 shamt = bin(int(ins[3]))[2:].zfill(5)
                 b.append(shamt)      # SHAMT
