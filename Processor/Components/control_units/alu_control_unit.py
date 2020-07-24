@@ -41,7 +41,7 @@ class ALUControlUnit:
             (not_aluop1, self.aluOp[0])
         )
         cin = Or((and_cin_0, and_cin_1, and_cin_2))
-        self.output = cin, select_0, select_1, select_2, select_3
+        self.output = cin, select_0, select_1, select_2, select_3, and_cin_1
 
     def logic(self, depend=[]):
         if self in depend:

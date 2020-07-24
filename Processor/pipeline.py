@@ -161,7 +161,7 @@ class Pipeline:
             mux_forwarding_a,
             mux_alu_src,
             self.alu_control_unit.output[0],
-            self.alu_control_unit.output[1:][::-1],
+            self.alu_control_unit.output[1:5][::-1],
             self.id_ex.get_immediate()[21:26],
             "ALU"
         )
@@ -170,7 +170,13 @@ class Pipeline:
             Mux_mxn((self.id_ex.get_rt()[i], self.id_ex.get_rd()[i]),
                     (self.id_ex.get_ex_control()[0],), 1) for i in range(5)]
 
-        ex_mem_inputs = mux_reg_dst + mux_forwarding_b + self.alu.output + self.id_ex.get_mem_control() \
+        one_number = [zero for _ in range(31)] + [One()]
+        zero_number = [zero for _ in range(32)]
+        mux_slt = [
+            Mux_mxn((self.alu.output[i], self.alu.output[i], zero_number[i], one_number[i]),
+                    (self.alu_control_unit.output[5], self.alu.output[0]), 2) for i in range(32)]
+
+        ex_mem_inputs = mux_reg_dst + mux_forwarding_b + mux_slt + self.id_ex.get_mem_control() \
                         + self.id_ex.get_wb_control()
         self.ex_mem.set_input(ex_mem_inputs)
 
