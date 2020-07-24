@@ -20,6 +20,9 @@ class ALU:
         self.alu_unit_output = None
         self.output = None
         self.n = 32
+        self.shift_left = None
+        self.shift_right = None
+        self.shift_mux = None
         self.build()
 
     def build(self):
@@ -32,10 +35,10 @@ class ALU:
         for i in range(self.n - 2, -1, -1):
             self.alu_unit_output[i].set_cin(self.alu_unit_output[i + 1].cout)
 
-        shift_left = LeftSift(self.a, self.shamt, 32, f"{self.name}_left_shift")
-        shift_right = RightSift(self.a, self.shamt, 32, f"{self.name}_right_shift")
-        shift_mux = [Mux_mxn([shift_left.output[i], shift_right.output[i]], self.selectors[1:2], 1) for i in range(32)]
-        self.output = [Mux_mxn([self.alu_unit_output[i].output.output, shift_mux[i].output], self.selectors[0:1], 1) for
+        self.shift_left = LeftSift(self.a, self.shamt, 32, f"{self.name}_left_shift")
+        self.shift_right = RightSift(self.a, self.shamt, 32, f"{self.name}_right_shift")
+        self.shift_mux = [Mux_mxn([self.shift_left.output[i], self.shift_right.output[i]], self.selectors[1:2], 1) for i in range(32)]
+        self.output = [Mux_mxn([self.alu_unit_output[i].output.output,  self.shift_mux[i].output], self.selectors[0:1], 1) for
                        i in range(32)]
 
     def logic(self, depend=[]):
