@@ -15,6 +15,7 @@ def test_compiler():
 def test_pipeline():
     Pipeline.run("p.asm")
 
+
 def test_gui():
     gui = PipelineGUI()
 
@@ -22,4 +23,4 @@ def test_gui():
 # test_compiler()
 # test_pipeline()
 
-test_gui()
+test_pipeline()

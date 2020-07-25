@@ -64,3 +64,6 @@ class MemoryBank:
 
     def __repr__(self):
         return f"{self.name}: {self.get_output()}"
+
+    def show_content(self, address: int):
+        return self.mem_cells[address].get_output()

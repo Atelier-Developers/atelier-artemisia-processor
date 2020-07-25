@@ -94,7 +94,7 @@ def compile_asm(lines, registers):
             continue
         ins = re.findall("^[a-z]+", line)
         if ins[0] != 'j':
-            regs = re.findall(" [a-zA-Z0-9]+|\$[a-z]+[0-9]|[0-9]+|\$zero", line)
+            regs = re.findall(" [a-zA-Z0-9]+|\$[a-z]+[0-9]|[0-9]+|\$zero|-[0-9]+", line)
         else:
             regs = [line.split(" ")[1]]
         if ins[0] == 'beq' and check_dependency(instructions[-1], regs):
@@ -123,10 +123,14 @@ def compile_asm(lines, registers):
             im = im.strip()
             b.append(registers[reg])
             b.append(registers[ins[1]])
-            if im.isnumeric():
-                b.append(bin(int(im))[2:].zfill(16))
+            if im.isnumeric() or (im[0] == '-' and im[1:].isnumeric()):
+                immediate = int(im)
+                if immediate < 0:
+                    b.append(twos_comp(bin(int(im))[2:].zfill(16)))
+                else:
+                    b.append(bin(int(im))[2:].zfill(16))
             else:
-                r_ad = labels[im.strip()] - add
+                r_ad = labels[im.strip()] - add - 1
                 if r_ad < 0:
                     r_ad_bin = twos_comp(bin(r_ad)[2:])
                 else:

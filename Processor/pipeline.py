@@ -292,7 +292,17 @@ class Pipeline:
                 pipeline.logic()
                 clock.pulse()
 
-    def set_pc(self, value):
-        pass
+    def show_register_content(self):
+        return self.register_file_unit.show_content()
 
-    # we assume that data memory is initialized to zero
+    def show_data_memory_content(self, address: int):
+        res = []
+        for i in range(4):
+            res.append(self.data_cache.output[i].show_content(address))
+        return res
+
+    def show_instruction_memory_content(self, address: int):
+        res = []
+        for i in range(4):
+            res.append(self.instruction_cache.output[i].show_content(address))
+        return res
