@@ -25,11 +25,14 @@ from gate.one_gate import One
 from gate.or_gate import Or
 from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
+from pipeline_gui import PipelineGUI
 from signals.signal import Signal
 from utils import bits_to_gates
+import tkinter as tk
 
 
 class Pipeline:
+    GUI = True
 
     def __init__(self, clock, write_instruction_value, write_instruction_address, load):
         # Get an instruciton list maybe?
@@ -61,6 +64,9 @@ class Pipeline:
         self.clock_register = And((clock, Not(load)))
         self.clock = self.clock_register
         self.build()
+
+        if Pipeline.GUI:
+            self.gui = PipelineGUI()
 
     def build(self):
         # Initializing Pipeline registers
@@ -272,6 +278,7 @@ class Pipeline:
         clock.pulse()
         pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
         for i in range(len(instructions)):
+            self.gui
             address = bin(i * 4)[2:].zfill(32)
             bits_to_gates(address, write_address_inp)
             bits_to_gates(instructions[i], write_val_inp)
