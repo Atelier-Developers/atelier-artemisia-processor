@@ -69,6 +69,20 @@ def check_dependency(ins, regs):
     return False
 
 
+def twos_comp(binary):
+    binary = binary[::-1]
+    new_b = ""
+    flag = False
+    for i in range(len(binary)):
+        if flag:
+            new_b += '0' if binary[i] == '1' else '1'
+        else:
+            if binary[i] == '1':
+                flag = True
+            new_b += binary[i]
+    return new_b[::-1]
+
+
 def compile_asm(lines, registers):
     # for beq, if R -> NOP, if LW -> NOP*2
     instructions = []
@@ -99,7 +113,7 @@ def compile_asm(lines, registers):
 
     binary = []
 
-    for ins in instructions:
+    for add, ins in enumerate(instructions):
         b = []
         if ins[0] == 'nop':
             b.append('0' * 32)
@@ -112,7 +126,13 @@ def compile_asm(lines, registers):
             if im.isnumeric():
                 b.append(bin(int(im))[2:].zfill(16))
             else:
-                b.append(bin(int(labels[im.strip()]))[2:].zfill(16))
+                r_ad = labels[im.strip()] - add
+                if r_ad < 0:
+                    r_ad_bin = twos_comp(bin(r_ad)[2:])
+                else:
+                    r_ad_bin = bin(r_ad)[2:]
+                b.append(r_ad_bin.zfill(16))
+
         elif ins[0] in r_format:
             b.append("000000")  # OPCODE
             if ins[0] == "sll" or ins[0] == "srl":
