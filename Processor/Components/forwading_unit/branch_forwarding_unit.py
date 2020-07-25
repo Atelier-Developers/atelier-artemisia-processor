@@ -17,10 +17,9 @@ class BranchForwardingUnit(ForwardingUnit):
         self.rw_mem_wb = rw_mem_wb
         self.branch = branch
         self.name = name
-        super(BranchForwardingUnit, self).__init__(rd_ex_mem, rd_ex_mem, rd_mem_wb, rw_ex_mem, rw_mem_wb, rs_if_id,
-                                                   rt_if_id)
+        super(BranchForwardingUnit, self).__init__(rd_ex_mem, rd_mem_wb, rw_ex_mem, rw_mem_wb, rs_if_id, rt_if_id)
         self.build()
 
     def build(self):
         super().build()
-        self.outputs = ((And((self.outputs[i][j], self.branch)) for j in range(2)) for i in range(2))
+        self.outputs = [[And((self.outputs[i][j], self.branch)) for j in range(2)] for i in range(2)]
