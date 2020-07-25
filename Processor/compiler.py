@@ -91,6 +91,9 @@ def compile_asm(lines, registers):
             elif r_format.get(instructions[-1][0]):
                 instructions.append(['nop'])
                 add += 1
+            elif instructions[-1][0] in list(i_format.keys())[2:9] and i_format.get(instructions[-1][0]):
+                instructions.append(['nop'])
+                add += 1
         add += 1
         instructions.append(ins + regs)
 
