@@ -14,5 +14,5 @@ def test_pipeline():
     Pipeline.run("p.asm")
 
 
-# test_compiler()
-test_pipeline()
+test_compiler()
+# test_pipeline()
