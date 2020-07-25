@@ -108,7 +108,10 @@ def compile_asm(lines, registers):
             im, reg = (ins[2], ins[3]) if ins[0] in ['lw', 'sw'] else (ins[3], ins[2])
             b.append(registers[reg])
             b.append(registers[ins[1]])
-            b.append(bin(int(im))[2:].zfill(16))
+            if im.isnumeric():
+                b.append(bin(int(im))[2:].zfill(16))
+            else:
+                b.append(bin(int(labels[im.strip()]))[2:].zfill(16))
         elif ins[0] in r_format:
             b.append("000000")  # OPCODE
             if ins[0] == "sll" or ins[0] == "srl":
