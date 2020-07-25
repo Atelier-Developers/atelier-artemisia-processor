@@ -37,6 +37,7 @@ class Pipeline:
     def __init__(self, clock, write_instruction_value, write_instruction_address, load):
         # Get an instruciton list maybe?
 
+        self.signal = clock
         # Components
         self.forwarding_unit: ForwardingUnit = None
         self.alu: ALU = None
@@ -268,6 +269,30 @@ class Pipeline:
         self.mem_wb.logic(depend)
 
     @staticmethod
+    def debug_mode(file_name):
+        instructions = compiler(file_name)
+        load_input = Input()
+        load_input.output = 1
+        write_val_inp = [Input() for _ in range(32)]
+        write_address_inp = [Input() for _ in range(32)]
+        clock = Signal()
+        clock.pulse()
+        print("before ppl")
+        pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
+        for i in range(len(instructions)):
+            print("Loading......")
+            address = bin(i * 4)[2:].zfill(32)
+            bits_to_gates(address, write_address_inp)
+            bits_to_gates(instructions[i], write_val_inp)
+            for _ in range(2):
+                pipeline.logic()
+                clock.pulse()
+        load_input.output = 0
+        pipeline.gui.make_listener(pipeline)
+        pipeline.gui.update_registers(pipeline.show_register_content())
+        pipeline.gui.window.mainloop()
+
+    @staticmethod
     def run(file_name):
         instructions = compiler(file_name)
         load_input = Input()
@@ -276,9 +301,10 @@ class Pipeline:
         write_address_inp = [Input() for _ in range(32)]
         clock = Signal()
         clock.pulse()
+        print("before ppl")
         pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
         for i in range(len(instructions)):
-            self.gui
+            print("Loading......")
             address = bin(i * 4)[2:].zfill(32)
             bits_to_gates(address, write_address_inp)
             bits_to_gates(instructions[i], write_val_inp)
@@ -287,22 +313,34 @@ class Pipeline:
                 clock.pulse()
         load_input.output = 0
         while True:
+            print("before ladkjf")
+            pipeline.gui.update_registers(pipeline.show_register_content())
             print("ladkjf")
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
+            pipeline.gui.window.mainloop()
 
     def show_register_content(self):
         return self.register_file_unit.show_content()
 
-    def show_data_memory_content(self, address: int):
+    def show_data_memory_content_gui(self):
+        address = int(self.gui.mem_ad.get())
         res = []
         for i in range(4):
-            res.append(self.data_cache.output[i].show_content(address))
-        return res
+            res += self.data_cache.output[i].show_content(address)
+        res = ''.join([str(x) if x is not None else '' for x in res])
+        self.gui.mem_lbl['text'] = res if len(res) > 0 else "NOT INIT"
 
     def show_instruction_memory_content(self, address: int):
         res = []
         for i in range(4):
             res.append(self.instruction_cache.output[i].show_content(address))
         return res
+
+    def pulse(self):
+        print("HELLEO")
+        for _ in range(2):
+            self.logic()
+            self.signal.pulse()
+        self.gui.update_registers(self.show_register_content())

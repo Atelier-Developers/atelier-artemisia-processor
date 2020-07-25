@@ -38,31 +38,69 @@ registers = reg_init()
 class PipelineGUI:
     def __init__(self):
         self.window = tk.Tk()
-        topframe = tk.Frame(master=self.window, width=200, height=250)
+        topframe = tk.Frame(master=self.window, width=500, height=250)
         topframe.pack(fill=tk.BOTH, expand=True)
 
-        self.reg_frame = tk.Frame(master=topframe, height=200, width=250)
+        self.window.title("Artemisia x32 Atelier Co.")
+
+        self.reg_frame = tk.Frame(master=topframe, height=200, width=400)
         self.reg_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        self.history_frame = tk.Frame(master=topframe, width=50, bg='yellow')
+        self.history_frame = tk.Frame(master=topframe, width=100)
         self.history_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-        self.option_frame = tk.Frame(master=self.window, height=50, bg='blue')
+        self.option_frame = tk.Frame(master=self.window, height=50, bg='blue', pady=10)
         self.option_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.update_registers()
+        self.mem_ad = tk.Entry(master=self.option_frame, width=25)
+        self.mem_ad.grid(row=0, column=0, padx=5)
 
-        self.window.mainloop()
+        self.mem_lbl = tk.Label(master=self.option_frame, text='', bg='blue', fg='white')
+        self.mem_lbl.grid(row=1, column=0, padx=5)
+
+        self.reg_labels = {}
 
     def update_registers(self, registers_value):
-        for i, key in enumerate(registers):
+        if self.reg_labels.get("$zero"):
+            for i, key in enumerate(registers):
+                self.reg_labels[key]['text'] = registers_value[i]
+        else:
+            tmp = 0
             frame = tk.Frame(
                 master=self.reg_frame,
                 relief=tk.RAISED,
-                borderwidth=1
+                borderwidth=1,
             )
-            frame.grid(row=i, column=0, sticky='nw')
-            label = tk.Label(master=self.reg_frame, text=f"{key}")
-            label.grid()
-            frame.grid(row=i, column=1, sticky='nw')
-            label = tk.Label(master=self.reg_frame, text=f"{registers_value[i]}")
+            frame.grid(row=0, column=1, sticky='nw', columnspan=3, padx=170)  # 17/16=1
+            label = tk.Label(master=frame, text=f"REGISTERS", font=("Helvetica", 30), justify=tk.CENTER)
+            label.pack(fill=tk.X, expand=True)
+            for i, key in enumerate(registers):
+                if i % 16 == 0 and i != 0:
+                    tmp = 1
+                frame = tk.Frame(
+                    master=self.reg_frame,
+                    relief=tk.RAISED,
+                    borderwidth=1
+                )
+                frame.grid(row=(i % 16) + 1, column=2 * tmp, sticky='nw')  # 17/16=1
+                label = tk.Label(master=frame, text=f"{key}")
+                label.pack()
+                self.reg_labels[f"{key}_key"] = label
+                frame = tk.Frame(
+                    master=self.reg_frame,
+                    relief=tk.RAISED,
+                    borderwidth=1
+                )
+                frame.grid(row=(i % 16) + 1, column=2 * tmp + 1, sticky='nw')
+                label = tk.Label(master=frame, text=f"{registers_value[i]}")
+                label.pack()
+                self.reg_labels[f"{key}_value"] = label
+
+    def make_listener(self, pipeline):
+        pulse_btn = tk.Button(master=self.option_frame, text="PULSE", command=pipeline.pulse)
+        pulse_btn.grid(row=0, column=10, padx=200)
+
+        self.btn_convert = tk.Button(master=self.option_frame, text='Show memory value at address',
+                                     font=("Helvetica", 10), padx=0, pady=0,
+                                     command=pipeline.show_data_memory_content_gui)
+        self.btn_convert.grid(row=0, column=3, padx=5)

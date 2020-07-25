@@ -77,4 +77,4 @@ class RegisterFileUnit:
                                                                             range(self.reg_width)]
 
     def show_content(self):
-        return [self.registers[i].get_output() for i in range(self.n)]
+        return [''.join(map(str, self.registers[i].get_output())) for i in range(self.n)]
