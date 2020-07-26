@@ -170,4 +170,4 @@ def compiler(file_name):
     return compile_asm(lines, registers)
 
 
-compiler("../p.asm")
+compiler("p.asm")

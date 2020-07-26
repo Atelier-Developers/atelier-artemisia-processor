@@ -44,18 +44,15 @@ class PipelineGUI:
         self.window.title("Artemisia x32 Atelier Co.")
 
         self.reg_frame = tk.Frame(master=topframe, height=200, width=400)
-        self.reg_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.reg_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=15)
 
-        self.history_frame = tk.Frame(master=topframe, width=100)
-        self.history_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-
-        self.option_frame = tk.Frame(master=self.window, height=50, bg='blue', pady=10)
+        self.option_frame = tk.Frame(master=self.window, height=50, bg='blue', pady=10, padx=15)
         self.option_frame.pack(fill=tk.BOTH, expand=True)
 
         self.mem_ad = tk.Entry(master=self.option_frame, width=25)
         self.mem_ad.grid(row=0, column=0, padx=(5, 0))
 
-        self.mem_lbl = tk.Label(master=self.option_frame, text='', bg='blue', fg='white')
+        self.mem_lbl = tk.Label(master=self.option_frame, text='*No Address Selected*', bg='blue', fg='white')
         self.mem_lbl.grid(row=1, column=0, padx=(5, 0))
 
         self.reg_labels = {}
@@ -68,10 +65,9 @@ class PipelineGUI:
             tmp = 0
             frame = tk.Frame(
                 master=self.reg_frame,
-                relief=tk.RAISED,
                 borderwidth=1,
             )
-            frame.grid(row=0, column=1, sticky='nw', columnspan=3, padx=(170, 0))  # 17/16=1
+            frame.grid(row=0, column=1, sticky='nw', columnspan=3, padx=(158, 0), pady=(0, 10))
             label = tk.Label(master=frame, text=f"REGISTERS", font=("Helvetica", 30), justify=tk.CENTER)
             label.pack(fill=tk.X, expand=True)
             for i, key in enumerate(registers):
@@ -79,23 +75,24 @@ class PipelineGUI:
                     tmp = 1
                 frame = tk.Frame(
                     master=self.reg_frame,
-                    relief=tk.RAISED,
                     borderwidth=1
                 )
 
-                # TODO MAYBE CHANGE THE PADDING AND STUFF TO REMOVE THE EXTRA SPACE IN THE WINDOW (TO THE RIGHT)
-                frame.grid(row=(i % 16) + 1, column=2 * tmp, sticky='nw')  # 17/16=1
+                frame.grid(row=(i % 16) + 1, column=2 * tmp, sticky='nw')
                 label = tk.Label(master=frame, text=f"{key}")
-                label.pack()
+                if tmp == 1:
+                    label.pack(padx=(20, 0))
+                else:
+                    label.pack()
                 self.reg_labels[f"{key}_key"] = label
                 frame = tk.Frame(
                     master=self.reg_frame,
-                    relief=tk.RAISED,
+                    relief="solid",
                     borderwidth=1
                 )
                 frame.grid(row=(i % 16) + 1, column=2 * tmp + 1, sticky='nw')
                 label = tk.Label(master=frame, text=f"{registers_value[i]}")
-                label.pack()
+                label.pack(fill=tk.X)
                 self.reg_labels[f"{key}_value"] = label
 
     def make_listener(self, pipeline):
