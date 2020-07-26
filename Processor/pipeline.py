@@ -4,7 +4,6 @@ from Components.alu.alu import ALU
 from Components.alu.left_shift import LeftSift
 from Components.control_units.control_unit import ControlUnit
 from Components.control_units.alu_control_unit import ALUControlUnit
-from Components.fast_memory_hierarchy.main_memory import MainMemory as FastMemory
 from Components.forwading_unit.branch_forwarding_unit import BranchForwardingUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
@@ -35,7 +34,7 @@ import tkinter as tk
 class Pipeline:
     GUI = True
 
-    def __init__(self, clock, write_instruction_value, write_instruction_address, load, mode="fast"):
+    def __init__(self, clock, write_instruction_value, write_instruction_address, load):
         # Get an instruciton list maybe?
 
         self.signal = clock
@@ -52,7 +51,7 @@ class Pipeline:
         self.write_instruction_value = write_instruction_value
         self.write_instruction_address = write_instruction_address
         self.load = load
-        self.mode = mode
+
         # Pipeline registers
         self.pc: PC = None
         self.if_id: IF_ID = None
@@ -72,14 +71,9 @@ class Pipeline:
 
     def build(self):
         # Initializing Pipeline registers
-        mainMemory = None
-        memory_size = 0
-        if self.mode == "fast":
-            mainMemory = FastMemory
-            memory_size = 2 ** 16
-        else:
-            mainMemory = SlowMemory
-            memory_size = 16
+
+        mainMemory = SlowMemory
+        memory_size = 32
 
 
         self.ex_mem = EX_MEM(self.clock_register, None)
