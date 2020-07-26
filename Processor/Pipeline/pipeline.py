@@ -1,5 +1,3 @@
-from math import log
-
 from Components.alu.alu import ALU
 from Components.alu.left_shift import LeftSift
 from Components.control_units.control_unit import ControlUnit
@@ -17,7 +15,7 @@ from Components.register_file.register_file_unit import RegisterFileUnit
 from Components.sign_extend.sign_extend_16to32 import SignExtend16To32
 from adder.full_adder import FullAdder
 from comparator.comparator import Comparator
-from compiler import compiler
+from Compiler.compiler import compiler
 from gate.and_gate import And
 from gate.input_gate import Input
 from gate.not_gate import Not
@@ -25,10 +23,9 @@ from gate.one_gate import One
 from gate.or_gate import Or
 from gate.zero_gate import Zero
 from multiplexer.mux_mxn import Mux_mxn
-from pipeline_gui import PipelineGUI
+from GUI.pipeline_gui import PipelineGUI
 from signals.signal import Signal
 from utils import bits_to_gates
-import tkinter as tk
 
 
 class Pipeline:
