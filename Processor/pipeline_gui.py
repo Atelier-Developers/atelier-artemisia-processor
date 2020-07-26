@@ -53,10 +53,10 @@ class PipelineGUI:
         self.option_frame.pack(fill=tk.BOTH, expand=True)
 
         self.mem_ad = tk.Entry(master=self.option_frame, width=25)
-        self.mem_ad.grid(row=0, column=0, padx=5)
+        self.mem_ad.grid(row=0, column=0, padx=(5, 0))
 
         self.mem_lbl = tk.Label(master=self.option_frame, text='', bg='blue', fg='white')
-        self.mem_lbl.grid(row=1, column=0, padx=5)
+        self.mem_lbl.grid(row=1, column=0, padx=(5, 0))
 
         self.reg_labels = {}
 
@@ -71,7 +71,7 @@ class PipelineGUI:
                 relief=tk.RAISED,
                 borderwidth=1,
             )
-            frame.grid(row=0, column=1, sticky='nw', columnspan=3, padx=170)  # 17/16=1
+            frame.grid(row=0, column=1, sticky='nw', columnspan=3, padx=(170, 0))  # 17/16=1
             label = tk.Label(master=frame, text=f"REGISTERS", font=("Helvetica", 30), justify=tk.CENTER)
             label.pack(fill=tk.X, expand=True)
             for i, key in enumerate(registers):
@@ -82,6 +82,8 @@ class PipelineGUI:
                     relief=tk.RAISED,
                     borderwidth=1
                 )
+
+                # TODO MAYBE CHANGE THE PADDING AND STUFF TO REMOVE THE EXTRA SPACE IN THE WINDOW (TO THE RIGHT)
                 frame.grid(row=(i % 16) + 1, column=2 * tmp, sticky='nw')  # 17/16=1
                 label = tk.Label(master=frame, text=f"{key}")
                 label.pack()
@@ -98,7 +100,7 @@ class PipelineGUI:
 
     def make_listener(self, pipeline):
         pulse_btn = tk.Button(master=self.option_frame, text="PULSE", command=pipeline.pulse)
-        pulse_btn.grid(row=0, column=10, padx=200)
+        pulse_btn.grid(row=0, column=10, padx=(110, 0))
 
         self.btn_convert = tk.Button(master=self.option_frame, text='Show memory value at address',
                                      font=("Helvetica", 10), padx=0, pady=0,

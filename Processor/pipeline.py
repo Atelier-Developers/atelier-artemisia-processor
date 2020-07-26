@@ -277,16 +277,24 @@ class Pipeline:
         write_address_inp = [Input() for _ in range(32)]
         clock = Signal()
         clock.pulse()
-        print("before ppl")
+        print("Loading instructions into memory, Please be patient!\n")
         pipeline = Pipeline(clock, write_val_inp, write_address_inp, load_input)
         for i in range(len(instructions)):
-            print("Loading......")
+
+            # LOADING SEGMENT
+            percent = ("{0:." + str(1) + "f}").format(100 * ((i + 1)/ float(len(instructions))))
+            filledLength = int((100 * (i + 1) / len(instructions)))
+            bar = '█' * filledLength + '-' * (100 - filledLength)
+            print(f'\r|{bar}| {percent}%', end="", flush=True)
+
             address = bin(i * 4)[2:].zfill(32)
             bits_to_gates(address, write_address_inp)
             bits_to_gates(instructions[i], write_val_inp)
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
+        print("\n\nProgram was loaded!")
+        print("Initiating Pipeline Execution")
         load_input.output = 0
         pipeline.gui.make_listener(pipeline)
         pipeline.gui.update_registers(pipeline.show_register_content())
@@ -313,9 +321,7 @@ class Pipeline:
                 clock.pulse()
         load_input.output = 0
         while True:
-            print("before ladkjf")
             pipeline.gui.update_registers(pipeline.show_register_content())
-            print("ladkjf")
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
@@ -339,7 +345,6 @@ class Pipeline:
         return res
 
     def pulse(self):
-        print("HELLEO")
         for _ in range(2):
             self.logic()
             self.signal.pulse()
