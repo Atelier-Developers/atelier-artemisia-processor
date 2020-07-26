@@ -245,7 +245,7 @@ class Pipeline:
             inst_cache_output += self.instruction_cache.output[i].output
 
         if_id_inputs = inst_cache_output + pc_adder + [if_flush]
-        if_id_clock = And((if_id_pc_write, self.clock_register))  # ????????????????????????????????????
+        if_id_clock = And((if_id_pc_write, self.clock_register))
 
         self.if_id.set_input(if_id_inputs)
 
@@ -273,7 +273,7 @@ class Pipeline:
         self.mem_wb.logic(depend)
 
     @staticmethod
-    def debug_mode(file_name):
+    def run(file_name):
         instructions = compiler(file_name)
         load_input = Input()
         load_input.output = 1
@@ -305,7 +305,7 @@ class Pipeline:
         pipeline.gui.window.mainloop()
 
     @staticmethod
-    def run(file_name):
+    def debug_mode(file_name):
         instructions = compiler(file_name)
         load_input = Input()
         load_input.output = 1

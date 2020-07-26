@@ -13,7 +13,7 @@ def test_compiler():
 
 
 def test_pipeline():
-    Pipeline.debug_mode("p.asm")
+    Pipeline.run("p.asm")
 
 
 def test_gui():
