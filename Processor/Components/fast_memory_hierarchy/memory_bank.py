@@ -39,3 +39,6 @@ class MemoryBank:
 
         dec_read_address = int(self.read_address[-int(log(self.size, 2)):], 2)
         return self.output[dec_read_address].get_output() if self.mem_read else [0 for _ in range(32)]
+
+    def show_content(self, address: int):
+        return self.output[address].get_output()

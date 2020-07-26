@@ -17,7 +17,6 @@ class MemoryCell:
             return self.output
         depend.append(self)
         self.clock.logic(depend)
-        self.inputs.logic(depend)
         self.mem_write.logic(depend)
         for inputWire in self.inputs:
             inputWire.logic(depend)

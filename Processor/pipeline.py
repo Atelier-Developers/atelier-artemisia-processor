@@ -4,10 +4,11 @@ from Components.alu.alu import ALU
 from Components.alu.left_shift import LeftSift
 from Components.control_units.control_unit import ControlUnit
 from Components.control_units.alu_control_unit import ALUControlUnit
+from Components.fast_memory_hierarchy.main_memory import MainMemory as FastMemory
 from Components.forwading_unit.branch_forwarding_unit import BranchForwardingUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
-from Components.memory_hierarchy.main_memory import MainMemory
+from Components.memory_hierarchy.main_memory import MainMemory as SlowMemory
 from Components.pipline_register.ex_mem import EX_MEM
 from Components.pipline_register.id_ex import ID_EX
 from Components.pipline_register.if_id import IF_ID
@@ -34,7 +35,7 @@ import tkinter as tk
 class Pipeline:
     GUI = True
 
-    def __init__(self, clock, write_instruction_value, write_instruction_address, load):
+    def __init__(self, clock, write_instruction_value, write_instruction_address, load, mode="fast"):
         # Get an instruciton list maybe?
 
         self.signal = clock
@@ -46,12 +47,12 @@ class Pipeline:
         self.hazard_detection_unit: HazardDetectionUnit = None
         self.register_file_unit: RegisterFileUnit = None
         self.sign_extend: SignExtend16To32 = None
-        self.data_cache: MainMemory = None
-        self.instruction_cache: MainMemory = None
+        self.data_cache = None
+        self.instruction_cache = None
         self.write_instruction_value = write_instruction_value
         self.write_instruction_address = write_instruction_address
         self.load = load
-
+        self.mode = mode
         # Pipeline registers
         self.pc: PC = None
         self.if_id: IF_ID = None
@@ -71,6 +72,15 @@ class Pipeline:
 
     def build(self):
         # Initializing Pipeline registers
+        mainMemory = None
+        memory_size = 0
+        if self.mode == "fast":
+            mainMemory = FastMemory
+            memory_size = 2 ** 16
+        else:
+            mainMemory = SlowMemory
+            memory_size = 16
+
 
         self.ex_mem = EX_MEM(self.clock_register, None)
         self.mem_wb = MEM_WB(self.clock_register, None)
@@ -204,9 +214,9 @@ class Pipeline:
         # Stage 4
 
         data_cache_address = self.ex_mem.get_alu_result()[2:] + [zero, zero]
-        self.data_cache = MainMemory(self.clock_register, data_cache_address, data_cache_address,
+        self.data_cache = mainMemory(self.clock_register, data_cache_address, data_cache_address,
                                      self.ex_mem.get_second_alu_src_value(), self.ex_mem.get_mem_control()[1],
-                                     self.ex_mem.get_mem_control()[0], 16, "Pipeline_Data_Cache")
+                                     self.ex_mem.get_mem_control()[0], memory_size, "Pipeline_Data_Cache")
 
         data_cache_output = []
         for i in range(4):
@@ -228,10 +238,10 @@ class Pipeline:
 
         pc_adder = [x.sum for x in pc_adder]
 
-        self.instruction_cache = MainMemory(self.mem_clock, self.pc.get_instruction_address(),
+        self.instruction_cache = mainMemory(self.mem_clock, self.pc.get_instruction_address(),
                                             self.write_instruction_address,
                                             self.write_instruction_value, self.load,
-                                            Not(self.load, "not_load"), 16, "Pipeline_Instruction_Cache")
+                                            Not(self.load, "not_load"), memory_size, "Pipeline_Instruction_Cache")
 
         if_flush = Or((branch_and, self.control_unit.output[9]))
         if_id_pc_write = Not(self.hazard_detection_unit.output)
@@ -321,11 +331,12 @@ class Pipeline:
                 clock.pulse()
         load_input.output = 0
         while True:
-            pipeline.gui.update_registers(pipeline.show_register_content())
+            # pipeline.gui.update_registers(pipeline.show_register_content())
+            print("here")
             for _ in range(2):
                 pipeline.logic()
                 clock.pulse()
-            pipeline.gui.window.mainloop()
+            # pipeline.gui.window.mainloop()
 
     def show_register_content(self):
         return self.register_file_unit.show_content()

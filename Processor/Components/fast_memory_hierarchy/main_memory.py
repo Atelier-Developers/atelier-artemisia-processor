@@ -37,6 +37,7 @@ class MainMemory:
         res = []
         for bank in self.output:
             res += bank.get_output()
+        print(res)
         return res
 
     def __repr__(self):
