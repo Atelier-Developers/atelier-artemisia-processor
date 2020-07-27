@@ -5,7 +5,7 @@ from Components.control_units.alu_control_unit import ALUControlUnit
 from Components.forwading_unit.branch_forwarding_unit import BranchForwardingUnit
 from Components.forwading_unit.forwarding_unit import ForwardingUnit
 from Components.hazard_detection_unit.hazard_detection_unit import HazardDetectionUnit
-from Components.memory_hierarchy.main_memory import MainMemory as SlowMemory
+from Components.memory_hierarchy.main_memory.main_memory import MainMemory as SlowMemory
 from Components.pipline_register.ex_mem import EX_MEM
 from Components.pipline_register.id_ex import ID_EX
 from Components.pipline_register.if_id import IF_ID

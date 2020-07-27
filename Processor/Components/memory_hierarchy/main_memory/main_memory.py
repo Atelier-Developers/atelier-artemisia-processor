@@ -1,6 +1,4 @@
-from math import log
-
-from Components.memory_hierarchy.memory_bank import MemoryBank
+from Components.memory_hierarchy.main_memory.memory_bank import MemoryBank
 from itertools import chain
 
 

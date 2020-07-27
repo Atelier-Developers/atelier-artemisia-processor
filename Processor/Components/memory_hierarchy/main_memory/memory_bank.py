@@ -1,11 +1,8 @@
 from math import log
 
-from Components.memory_hierarchy.memory_cell import MemoryCell
-from comparator.comparator import Comparator
+from Components.memory_hierarchy.main_memory.memory_cell import MemoryCell
 from decoder.decoder_mxn import Decoder_nxm
 from gate.and_gate import And
-from gate.one_gate import One
-from gate.or_gate import Or
 from multiplexer.mux_mxn import Mux_mxn
 
 
@@ -40,9 +37,6 @@ class MemoryBank:
                     f"{self.name}_mux_{i}_read",
                     True)
             for i in range(8)]
-        # remaining_bits = self.read_address[:-int(log(self.size, 2)) - 2]
-        # compare = Comparator((remaining_bits, remaining_bits), len(remaining_bits))
-        # compare_2 = Comparator((self.read_address[-2:], self.read_address[-2:]), len(self.read_address[-2:]))
         self.output = [And((self.mem_read, self.muxs[i].output)) for i in
                        range(8)]
 
