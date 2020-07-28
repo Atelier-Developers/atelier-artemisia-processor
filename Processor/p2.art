@@ -1,0 +1,8 @@
+addi $t0, $zero, 4
+add $t1, $zero, $zero
+loop:
+beq $t0, $t1, end
+addi $t1, $t1, 1
+j loop
+end:
+sw $t1, 0($t0)

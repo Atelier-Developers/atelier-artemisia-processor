@@ -8,12 +8,17 @@ sys.setrecursionlimit(5000)  # default is 1000
 
 
 def test_compiler():
-    file_name = "p.asm"
+    file_name = "p.art"
     print(list(map(str, compiler(file_name))))
 
 
 def test_pipeline():
-    Pipeline.run("p.asm")
+    print("WELCOME TO ARTEMISIA X32")
+    print("Atelier Co.\n")
+    print("Enter your file name: ")
+    file_name = input()
+    print()
+    Pipeline.run(file_name)
 
 
 def test_gui():
@@ -26,6 +31,5 @@ def test_gui():
 
 # test_compiler()
 # test_pipeline()
-
 test_pipeline()
 # test_gui()

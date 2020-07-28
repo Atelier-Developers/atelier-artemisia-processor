@@ -125,17 +125,21 @@ def compile_asm(lines, registers):
             b.append(registers[ins[1]])
             if im.isnumeric() or (im[0] == '-' and im[1:].isnumeric()):
                 immediate = int(im)
+                while ins[0] == "beq" and instructions[immediate][0] == "nop":
+                    immediate += 1
                 if immediate < 0:
-                    b.append(twos_comp(bin(int(im))[2:].zfill(16)))
+                    b.append(twos_comp(bin(immediate)[2:].zfill(16)))
                 else:
-                    b.append(bin(int(im))[2:].zfill(16))
+                    b.append(bin(immediate)[2:].zfill(16))
             else:
                 r_ad = labels[im.strip()] - add - 1
+                while instructions[add + 1 + r_ad][0] == "nop":
+                    r_ad += 1
                 if r_ad < 0:
-                    r_ad_bin = twos_comp(bin(r_ad)[2:])
+                    r_ad_bin = twos_comp(bin(r_ad)[2:].zfill(16))
                 else:
-                    r_ad_bin = bin(r_ad)[2:]
-                b.append(r_ad_bin.zfill(16))
+                    r_ad_bin = bin(r_ad)[2:].zfill(16)
+                b.append(r_ad_bin)
 
         elif ins[0] in r_format:
             b.append("000000")  # OPCODE
@@ -154,9 +158,15 @@ def compile_asm(lines, registers):
         elif ins[0] in j_format:
             b.append(j_format[ins[0]])
             if ins[1].isnumeric():
-                b.append(bin(int(ins[1]))[2:].zfill(26))
+                ad = int(ins[1])
+                while instructions[ad][0] == "nop":
+                    ad += 1
+                b.append(bin(ad)[2:].zfill(26))
             else:
-                b.append(bin(labels[ins[1]])[2:].zfill(26))
+                ad = labels[ins[1]]
+                while instructions[ad][0] == "nop":
+                    ad += 1
+                b.append(bin(ad)[2:].zfill(26))
         binary.append("".join(b))
 
     return binary
@@ -170,4 +180,4 @@ def compiler(file_name):
     return compile_asm(lines, registers)
 
 
-compiler("p.asm")
+# compiler("p.art")
